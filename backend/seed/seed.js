@@ -1,4 +1,3 @@
-// seed/seed.js
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Portfolio from '../src/models/Portfolio.js';
@@ -12,13 +11,18 @@ const seedDatabase = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('Connected to MongoDB');
+    console.log('✅ Connected to MongoDB');
 
-    // Delete existing data
-    await Portfolio.deleteMany({});
-    console.log('Cleared existing portfolio data');
+    // Check if data already exists
+    const existing = await Portfolio.findOne();
+    
+    if (existing) {
+      console.log('📊 Data already exists in database. Skipping seed.');
+      console.log('📌 To reset, delete the collection and run seed again.');
+      process.exit(0);
+    }
 
-    // Insert default data
+    // Insert default data only if empty
     const portfolio = await Portfolio.create(defaultPortfolioData);
     console.log('✅ Default portfolio data seeded successfully!');
     console.log(`📊 Portfolio ID: ${portfolio._id}`);
