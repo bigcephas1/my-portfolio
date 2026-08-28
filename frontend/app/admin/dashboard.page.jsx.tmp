@@ -1,0 +1,77 @@
+// This is a patch for the projects section in the admin dashboard
+// Replace the projects section in the content tab with this:
+
+{editingItem === 'projects' && (
+  <div className="card">
+    <h4>Projects</h4>
+    <button className="btn-primary" style={{ marginBottom: '1rem' }} onClick={() => {
+      setNewItem({ 
+        name: '', 
+        description: '', 
+        techStack: [], 
+        githubUrl: '', 
+        liveUrl: '',
+        image: ''
+      });
+      setShowAddModal(true);
+    }}>
+      <i className="fas fa-plus"></i> Add Project
+    </button>
+    {formData.projects?.map((project) => (
+      <div key={project.id} style={{ borderBottom: '1px solid #eef2f6', padding: '1rem 0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <strong>{project.name}</strong>
+          <button className="btn-danger" style={{ padding: '0.2rem 0.8rem', fontSize: '0.8rem' }} onClick={() => handleDeleteItem('projects', project.id)}>
+            <i className="fas fa-trash"></i>
+          </button>
+        </div>
+        <input
+          className="form-input"
+          style={{ marginTop: '0.5rem' }}
+          placeholder="Project Name"
+          value={project.name}
+          onChange={(e) => handleUpdateItem('projects', project.id, 'name', e.target.value)}
+        />
+        <textarea
+          className="form-input"
+          style={{ marginTop: '0.5rem' }}
+          rows="2"
+          placeholder="Description"
+          value={project.description}
+          onChange={(e) => handleUpdateItem('projects', project.id, 'description', e.target.value)}
+        />
+        <input
+          className="form-input"
+          style={{ marginTop: '0.5rem' }}
+          placeholder="Tech Stack (comma separated)"
+          value={project.techStack?.join(', ') || ''}
+          onChange={(e) => handleUpdateItem('projects', project.id, 'techStack', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+        />
+        <input
+          className="form-input"
+          style={{ marginTop: '0.5rem' }}
+          placeholder="GitHub URL"
+          value={project.githubUrl || ''}
+          onChange={(e) => handleUpdateItem('projects', project.id, 'githubUrl', e.target.value)}
+        />
+        <input
+          className="form-input"
+          style={{ marginTop: '0.5rem' }}
+          placeholder="Live Demo URL"
+          value={project.liveUrl || ''}
+          onChange={(e) => handleUpdateItem('projects', project.id, 'liveUrl', e.target.value)}
+        />
+        <input
+          className="form-input"
+          style={{ marginTop: '0.5rem' }}
+          placeholder="Project Image URL"
+          value={project.image || ''}
+          onChange={(e) => handleUpdateItem('projects', project.id, 'image', e.target.value)}
+        />
+      </div>
+    ))}
+    <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={handleUpdate}>
+      <i className="fas fa-save"></i> Save All Projects
+    </button>
+  </div>
+)}
