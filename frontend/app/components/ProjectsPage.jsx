@@ -10,10 +10,11 @@ const ProjectsPage = ({ data }) => {
       animate={{ opacity: 1, y: 0 }}
     >
       <h2><i className="fas fa-code-branch"></i> Projects</h2>
-      <div style={{ marginTop: '1.5rem' }}>
+      <div className="projects-grid" style={{ marginTop: '1.5rem' }}>
         {data.projects?.map((project, index) => (
           <motion.div
             key={project.id}
+            className="project-card"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08 }}
@@ -22,18 +23,17 @@ const ProjectsPage = ({ data }) => {
               paddingLeft: '1.2rem',
               marginBottom: '2rem',
               paddingBottom: '1rem',
-              borderBottom: '1px solid #f1f5f9'
+              borderBottom: '1px solid var(--border-color)'
             }}
           >
             <h3 style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '0.3rem' }}>
               {project.name}
             </h3>
-            <p style={{ color: '#475569', marginBottom: '0.8rem' }}>{project.description}</p>
+            <p style={{ color: 'var(--text-light)', marginBottom: '0.8rem' }}>{project.description}</p>
             
-            {/* Tech Stack */}
             {project.techStack && project.techStack.length > 0 && (
-              <div style={{ marginBottom: '0.8rem' }}>
-                <span style={{ fontSize: '0.85rem', color: '#64748b', marginRight: '0.5rem' }}>
+              <div className="tech-stack" style={{ marginBottom: '0.8rem', display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginRight: '0.5rem' }}>
                   <i className="fas fa-code"></i> Tech Stack:
                 </span>
                 {project.techStack.map((tech, i) => (
@@ -41,13 +41,13 @@ const ProjectsPage = ({ data }) => {
                     key={i}
                     style={{
                       display: 'inline-block',
-                      background: '#eef2f6',
+                      background: 'var(--border-color)',
                       padding: '0.15rem 0.7rem',
                       borderRadius: '12px',
                       fontSize: '0.75rem',
                       marginRight: '0.3rem',
                       marginTop: '0.2rem',
-                      color: '#1e293b'
+                      color: 'var(--text-color)'
                     }}
                   >
                     {tech}
@@ -56,8 +56,7 @@ const ProjectsPage = ({ data }) => {
               </div>
             )}
 
-            {/* URLs */}
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+            <div className="project-links" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
               {project.githubUrl && (
                 <a
                   href={project.githubUrl}
@@ -131,7 +130,6 @@ const ProjectsPage = ({ data }) => {
               )}
             </div>
 
-            {/* Project Image if available */}
             {project.image && (
               <div style={{ marginTop: '0.8rem' }}>
                 <img 

@@ -10,7 +10,7 @@ const CertificationsPage = ({ data }) => {
       animate={{ opacity: 1, y: 0 }}
     >
       <h2><i className="fas fa-certificate"></i> Certifications</h2>
-      <div style={{ 
+      <div className="certifications-grid" style={{ 
         display: 'grid', 
         gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
         gap: '1.5rem',
@@ -19,6 +19,7 @@ const CertificationsPage = ({ data }) => {
         {data.certifications?.map((cert, index) => (
           <motion.div
             key={cert.id}
+            className="certification-card"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08 }}
@@ -35,7 +36,7 @@ const CertificationsPage = ({ data }) => {
             }}
           >
             {cert.image ? (
-              <div style={{ 
+              <div className="cert-image" style={{ 
                 width: '100%', 
                 height: '150px', 
                 overflow: 'hidden',

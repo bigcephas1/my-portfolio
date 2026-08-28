@@ -44,17 +44,17 @@ export default function About() {
   }
 
   const about = data.about || {};
-  // Get the profile image from about or fallback to avatar
   const profileImage = about.profileImage || data.avatar || '';
 
   return (
     <div className="card">
       <h2><i className="fas fa-user"></i> About Me</h2>
       <div style={{ marginTop: '1.5rem' }}>
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+        <div className="about-section" style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
           {profileImage && (
-            <div style={{ flexShrink: 0 }}>
+            <div style={{ flexShrink: 0, margin: '0 auto' }}>
               <img 
+                className="about-image"
                 src={profileImage} 
                 alt="Profile" 
                 style={{ 
@@ -70,7 +70,7 @@ export default function About() {
               />
             </div>
           )}
-          <div style={{ flex: 1 }}>
+          <div className="about-content" style={{ flex: 1 }}>
             <p style={{ fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
               {about.bio || 'Passionate DevSecOps Engineer with a strong background in cloud infrastructure.'}
             </p>
@@ -96,7 +96,7 @@ export default function About() {
                 </div>
               </div>
             )}
-            <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <div className="about-actions" style={{ marginTop: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <a href="/contact" className="btn-primary" style={{ textDecoration: 'none' }}>
                 <i className="fas fa-paper-plane"></i> Contact Me
               </a>

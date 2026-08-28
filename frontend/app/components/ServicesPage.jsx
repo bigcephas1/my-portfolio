@@ -10,7 +10,7 @@ const ServicesPage = ({ data }) => {
       animate={{ opacity: 1, y: 0 }}
     >
       <h2><i className="fas fa-concierge-bell"></i> Services</h2>
-      <div style={{ 
+      <div className="services-grid" style={{ 
         display: 'grid', 
         gridTemplateColumns: '1fr 1fr', 
         gap: '1rem',
@@ -19,29 +19,39 @@ const ServicesPage = ({ data }) => {
         {data.services?.map((service) => (
           <motion.div
             key={service.id}
+            className="service-card"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             style={{
-              background: '#f1f5f9',
+              background: 'var(--bg-color)',
               padding: '1.2rem 1.5rem',
               borderRadius: '16px',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--border-color)',
               transition: 'all 0.2s'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
               {service.icon && (
-                <i className={`fas ${service.icon}`} style={{ 
-                  color: '#2563eb', 
-                  fontSize: '1.5rem',
-                  width: '2rem',
-                  textAlign: 'center'
-                }}></i>
+                <div className="service-icon" style={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '3rem',
+                  height: '3rem',
+                  background: 'var(--primary-bg)',
+                  borderRadius: '12px',
+                  flexShrink: 0
+                }}>
+                  <i className={`fas ${service.icon}`} style={{ 
+                    color: '#2563eb', 
+                    fontSize: '1.5rem'
+                  }}></i>
+                </div>
               )}
               <div>
                 <h4 style={{ fontWeight: 600, marginBottom: '0.2rem' }}>{service.name}</h4>
                 {service.description && (
-                  <p style={{ fontSize: '0.9rem', color: '#475569' }}>{service.description}</p>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-light)' }}>{service.description}</p>
                 )}
               </div>
             </div>

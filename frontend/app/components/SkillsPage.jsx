@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 
 const SkillsPage = ({ data }) => {
-  // Group skills by category
   const groupedSkills = data.skills?.reduce((acc, skill) => {
     const category = skill.category || 'Other';
     if (!acc[category]) acc[category] = [];
@@ -20,21 +19,25 @@ const SkillsPage = ({ data }) => {
       <h2><i className="fas fa-cogs"></i> Technical Skills</h2>
       <div style={{ marginTop: '1.5rem' }}>
         {Object.entries(groupedSkills || {}).map(([category, skills]) => (
-          <div key={category} style={{ marginBottom: '1.5rem' }}>
+          <div key={category} className="skills-category" style={{ marginBottom: '1.5rem' }}>
             <h4 style={{ color: '#2563eb', marginBottom: '0.5rem' }}>{category}</h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+            <div className="skills-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
               {skills.map((skill) => (
                 <motion.span
                   key={skill.id}
+                  className="skill-tag"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="badge badge-secondary"
                   style={{ 
                     fontSize: '0.85rem',
                     padding: '0.5rem 1rem',
-                    display: 'flex',
+                    display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.5rem'
+                    gap: '0.5rem',
+                    background: 'var(--border-color)',
+                    borderRadius: '30px',
+                    color: 'var(--text-color)',
+                    border: '1px solid var(--border-color)'
                   }}
                 >
                   {skill.name}
@@ -42,7 +45,7 @@ const SkillsPage = ({ data }) => {
                     <span style={{ 
                       fontSize: '0.7rem', 
                       color: '#2563eb',
-                      background: '#2563eb10',
+                      background: 'var(--primary-bg)',
                       padding: '0.1rem 0.5rem',
                       borderRadius: '12px'
                     }}>

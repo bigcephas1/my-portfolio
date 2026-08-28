@@ -77,14 +77,14 @@ const HomePage = ({ data }) => {
 
   return (
     <>
-      <div style={{ 
+      <div className="home-hero" style={{ 
         display: 'grid', 
         gridTemplateColumns: '1fr 1.5fr', 
         gap: '2rem',
         marginBottom: '2rem'
       }}>
         <motion.div 
-          className="card"
+          className="carousel-container card"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
@@ -148,6 +148,7 @@ const HomePage = ({ data }) => {
             {profileImages.length > 1 && (
               <>
                 <button
+                  className="nav-arrows"
                   onClick={(e) => {
                     e.stopPropagation();
                     prevImage();
@@ -178,6 +179,7 @@ const HomePage = ({ data }) => {
                   <i className="fas fa-chevron-left"></i>
                 </button>
                 <button
+                  className="nav-arrows"
                   onClick={(e) => {
                     e.stopPropagation();
                     nextImage();
@@ -277,7 +279,8 @@ const HomePage = ({ data }) => {
                 padding: '0.5rem 0.8rem',
                 borderRadius: '12px',
                 color: 'var(--primary-color)',
-                fontSize: '1.2rem'
+                fontSize: '1.2rem',
+                flexShrink: 0
               }}>
                 <i className="fas fa-bullseye"></i>
               </div>
@@ -301,7 +304,8 @@ const HomePage = ({ data }) => {
                 padding: '0.5rem 0.8rem',
                 borderRadius: '12px',
                 color: 'var(--primary-color)',
-                fontSize: '1.2rem'
+                fontSize: '1.2rem',
+                flexShrink: 0
               }}>
                 <i className="fas fa-user-tie"></i>
               </div>
@@ -348,7 +352,8 @@ const HomePage = ({ data }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 9999
+            zIndex: 9999,
+            padding: '1rem'
           }}
         >
           <motion.div 
@@ -356,13 +361,15 @@ const HomePage = ({ data }) => {
             animate={{ scale: 1 }}
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'white',
+              background: 'var(--bg-card)',
               borderRadius: '24px',
               padding: '2rem',
               maxWidth: '90vw',
               maxHeight: '90vh',
               overflow: 'auto',
-              position: 'relative'
+              position: 'relative',
+              width: '100%',
+              maxWidth: '800px'
             }}
           >
             <button 
@@ -375,8 +382,10 @@ const HomePage = ({ data }) => {
                 border: 'none',
                 fontSize: '2rem',
                 cursor: 'pointer',
-                color: '#64748b',
-                zIndex: 1
+                color: 'var(--text-color)',
+                zIndex: 1,
+                minHeight: '44px',
+                minWidth: '44px'
               }}
             >
               ×
@@ -399,7 +408,7 @@ const HomePage = ({ data }) => {
                     }}
                   />
                   {profileImages.length > 1 && (
-                    <p style={{ marginTop: '0.5rem', color: '#64748b', fontSize: '0.85rem' }}>
+                    <p style={{ marginTop: '0.5rem', color: 'var(--text-light)', fontSize: '0.85rem' }}>
                       Image {index + 1} of {profileImages.length}
                     </p>
                   )}

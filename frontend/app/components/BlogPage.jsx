@@ -15,6 +15,7 @@ const BlogPage = ({ data }) => {
         {data.blog?.map((post, index) => (
           <motion.div
             key={post.id}
+            className="blog-post"
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.08 }}
@@ -30,7 +31,7 @@ const BlogPage = ({ data }) => {
               flexWrap: 'wrap',
               gap: '0.5rem'
             }}>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: '200px' }}>
                 {post.url ? (
                   <a 
                     href={post.url} 
@@ -78,7 +79,7 @@ const BlogPage = ({ data }) => {
               )}
             </div>
             
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.3rem' }}>
+            <div className="blog-meta" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.3rem' }}>
               <span style={{ color: 'var(--text-light)', fontSize: '0.85rem' }}>
                 <i className="fas fa-calendar"></i> {post.date}
               </span>
@@ -110,7 +111,7 @@ const BlogPage = ({ data }) => {
               </div>
             )}
             
-            <div style={{ 
+            <div className="blog-actions" style={{ 
               display: 'flex', 
               alignItems: 'center', 
               gap: '0.5rem', 

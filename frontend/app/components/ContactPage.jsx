@@ -51,16 +51,16 @@ const ContactPage = ({ data }) => {
     switch (field.type) {
       case 'email':
         return (
-          <p key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+          <p key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', flexWrap: 'wrap' }}>
             <i className={`${iconTag} ${iconClass}`} style={{ color: '#2563eb', width: '20px' }}></i>
-            <a href={`mailto:${field.value}`} style={{ color: 'var(--text-color)', textDecoration: 'none' }}>
+            <a href={`mailto:${field.value}`} style={{ color: 'var(--text-color)', textDecoration: 'none', wordBreak: 'break-all' }}>
               {field.value}
             </a>
           </p>
         );
       case 'phone':
         return (
-          <p key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+          <p key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', flexWrap: 'wrap' }}>
             <i className={`${iconTag} ${iconClass}`} style={{ color: '#2563eb', width: '20px' }}></i>
             <a href={`tel:${field.value}`} style={{ color: 'var(--text-color)', textDecoration: 'none' }}>
               {field.value}
@@ -70,9 +70,9 @@ const ContactPage = ({ data }) => {
       case 'url':
         const href = field.value.startsWith('http') ? field.value : `https://${field.value}`;
         return (
-          <p key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+          <p key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', flexWrap: 'wrap' }}>
             <i className={`${iconTag} ${iconClass}`} style={{ color: '#2563eb', width: '20px' }}></i>
-            <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-color)', textDecoration: 'none' }}>
+            <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-color)', textDecoration: 'none', wordBreak: 'break-all' }}>
               {field.label}: {field.value}
               <i className="fas fa-external-link-alt" style={{ fontSize: '0.7rem', marginLeft: '0.3rem', color: '#64748b' }}></i>
             </a>
@@ -80,25 +80,25 @@ const ContactPage = ({ data }) => {
         );
       case 'address':
         return (
-          <p key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+          <p key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', flexWrap: 'wrap' }}>
             <i className={`${iconTag} ${iconClass}`} style={{ color: '#2563eb', width: '20px' }}></i>
             {field.value}
           </p>
         );
       default:
         return (
-          <p key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+          <p key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', flexWrap: 'wrap' }}>
             <i className={`${iconTag} ${iconClass}`} style={{ color: '#2563eb', width: '20px' }}></i>
-            <span style={{ color: 'var(--text-color)' }}>{field.label}: {field.value}</span>
+            <span style={{ color: 'var(--text-color)', wordBreak: 'break-all' }}>{field.label}: {field.value}</span>
           </p>
         );
     }
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.8rem' }}>
+    <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.8rem' }}>
       <motion.div 
-        className="card"
+        className="card contact-info"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
       >
@@ -107,7 +107,6 @@ const ContactPage = ({ data }) => {
           {contactFields.map(field => renderContactField(field))}
         </div>
 
-        {/* ✅ FIXED: Education as Array */}
         <div style={{ marginTop: '2rem' }}>
           <h4>Education</h4>
           {education && Array.isArray(education) && education.length > 0 ? (
@@ -118,7 +117,8 @@ const ContactPage = ({ data }) => {
                 alignItems: 'flex-start',
                 marginTop: index > 0 ? '1rem' : '0.5rem',
                 paddingBottom: index < education.length - 1 ? '1rem' : '0',
-                borderBottom: index < education.length - 1 ? '1px solid var(--border-color)' : 'none'
+                borderBottom: index < education.length - 1 ? '1px solid var(--border-color)' : 'none',
+                flexWrap: 'wrap'
               }}>
                 {edu.certificateImage && (
                   <div style={{ 
@@ -152,7 +152,7 @@ const ContactPage = ({ data }) => {
                     )}
                   </div>
                 )}
-                <div>
+                <div style={{ flex: 1, minWidth: '150px' }}>
                   <p style={{ marginTop: '0.3rem' }}>
                     <strong>{edu.degree || 'N/A'}</strong><br />
                     {edu.institution || 'N/A'}
@@ -218,7 +218,7 @@ const ContactPage = ({ data }) => {
       </motion.div>
 
       <motion.div 
-        className="card"
+        className="card contact-form"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
       >
@@ -227,7 +227,7 @@ const ContactPage = ({ data }) => {
           I'll respond within 24-48 hours
         </p>
         <form onSubmit={handleSubmit} style={{ marginTop: '1.5rem' }}>
-          <div style={{ marginBottom: '1rem' }}>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
             <label className="form-label">
               Name <span style={{ color: '#ef4444' }}>*</span>
             </label>
@@ -240,7 +240,7 @@ const ContactPage = ({ data }) => {
               placeholder="Your full name"
             />
           </div>
-          <div style={{ marginBottom: '1rem' }}>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
             <label className="form-label">
               Email <span style={{ color: '#ef4444' }}>*</span>
             </label>
@@ -253,7 +253,7 @@ const ContactPage = ({ data }) => {
               placeholder="your@email.com"
             />
           </div>
-          <div style={{ marginBottom: '1rem' }}>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
             <label className="form-label">Subject</label>
             <input
               type="text"
@@ -263,7 +263,7 @@ const ContactPage = ({ data }) => {
               placeholder="What's this about?"
             />
           </div>
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
             <label className="form-label">
               Message <span style={{ color: '#ef4444' }}>*</span>
             </label>

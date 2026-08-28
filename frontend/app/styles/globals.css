@@ -5,7 +5,6 @@
 }
 
 :root {
-  /* Light Theme Colors */
   --primary-color: #2563eb;
   --primary-dark: #1d4ed8;
   --primary-bg: #2563eb10;
@@ -28,7 +27,6 @@
   
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
-  /* Modal specific */
   --modal-bg: #ffffff;
   --modal-text: #1e293b;
   --modal-input-bg: #f8fafc;
@@ -38,7 +36,6 @@
   --modal-placeholder-color: #94a3b8;
 }
 
-/* Dark Theme */
 [data-theme="dark"] {
   --primary-color: #60a5fa;
   --primary-dark: #3b82f6;
@@ -60,7 +57,6 @@
   --warning: #f59e0b;
   --info: #3b82f6;
   
-  /* Modal specific - Dark */
   --modal-bg: #1e293b;
   --modal-text: #e2e8f0;
   --modal-input-bg: #0f172a;
@@ -268,7 +264,7 @@ body {
   color: var(--modal-label-color);
 }
 
-/* Modal styles - Complete dark mode support */
+/* Modal styles */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -291,7 +287,6 @@ body {
   border: 1px solid var(--border-color);
 }
 
-/* Modal text colors */
 .modal-content,
 .modal-content * {
   color: var(--modal-text);
@@ -330,18 +325,6 @@ body {
   color: white !important;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .container {
-    padding: 0 1rem;
-  }
-  
-  .card {
-    padding: 1.5rem;
-    border-radius: 20px;
-  }
-}
-
 /* Smooth transitions for theme switching */
 * {
   transition: background-color 0.3s ease, 
@@ -358,64 +341,6 @@ body {
 .avatar:hover {
   transform: scale(1.05);
   box-shadow: 0 12px 28px var(--primary-shadow);
-}
-
-/* Navbar link hover effect */
-.nav-link {
-  position: relative;
-  transition: var(--transition);
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: var(--primary-color);
-  transition: var(--transition);
-  transform: translateX(-50%);
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.nav-link.active::after {
-  width: 100%;
-}
-
-/* Admin toggle button */
-.admin-toggle {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: var(--secondary-color);
-  color: white;
-  border: none;
-  padding: 0.6rem 1.5rem;
-  border-radius: 40px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  z-index: 999;
-  transition: var(--transition);
-}
-
-.admin-toggle:hover {
-  background: var(--primary-color);
-  transform: scale(1.02);
-}
-
-/* Dark mode specific overrides */
-[data-theme="dark"] .btn-outline:hover {
-  background: var(--primary-color);
-  color: white !important;
-}
-
-[data-theme="dark"] .card {
-  border-color: var(--border-color);
 }
 
 /* Interest tags dark mode */
@@ -444,4 +369,531 @@ body {
 
 .hire-card p {
   color: var(--text-color);
+}
+
+/* ========== RESPONSIVE BREAKPOINTS ========== */
+
+/* Tablet Styles (768px - 1024px) */
+@media screen and (max-width: 1024px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+  
+  .card {
+    padding: 1.5rem;
+    border-radius: 24px;
+  }
+  
+  /* Navbar responsive */
+  .navbar {
+    padding: 1rem 0 !important;
+  }
+  
+  .navbar-brand {
+    font-size: 1.5rem !important;
+  }
+  
+  .nav-links {
+    gap: 0.3rem 0.5rem !important;
+  }
+  
+  .nav-links a {
+    font-size: 0.8rem !important;
+    padding: 0.3rem 0.6rem !important;
+  }
+  
+  /* Home page responsive */
+  .home-hero {
+    grid-template-columns: 1fr 1.2fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  .home-hero .carousel-container {
+    min-height: 300px !important;
+  }
+  
+  .home-hero .carousel-container img {
+    min-height: 300px !important;
+  }
+  
+  /* Services grid */
+  .services-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  
+  /* Certifications grid */
+  .certifications-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  }
+  
+  /* Contact page */
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  /* Admin dashboard */
+  .admin-tabs {
+    gap: 0.3rem !important;
+  }
+  
+  .admin-tabs button {
+    padding: 0.3rem 0.8rem !important;
+    font-size: 0.8rem !important;
+  }
+  
+  .admin-content-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Education section */
+  .education-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Projects page */
+  .projects-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Mobile Styles (max-width: 767px) */
+@media screen and (max-width: 767px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .card {
+    padding: 1rem;
+    border-radius: 20px;
+  }
+  
+  /* ===== NAVBAR MOBILE ===== */
+  .navbar {
+    padding: 0.8rem 0 !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  
+  .navbar-brand {
+    font-size: 1.3rem !important;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .navbar-brand .hamburger {
+    display: flex !important;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-color);
+    color: var(--text-color);
+  }
+  
+  .nav-links {
+    display: none !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 0.3rem !important;
+    padding: 0.5rem 0;
+  }
+  
+  .nav-links.open {
+    display: flex !important;
+  }
+  
+  .nav-links a {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 0.5rem 0.8rem !important;
+    font-size: 0.9rem !important;
+    border-radius: 12px !important;
+  }
+  
+  .nav-links .auth-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 0.3rem !important;
+  }
+  
+  .nav-links .auth-buttons a,
+  .nav-links .auth-buttons button {
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+  
+  .theme-toggle {
+    align-self: center !important;
+  }
+  
+  /* ===== HOME PAGE MOBILE ===== */
+  .home-hero {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .home-hero .carousel-container {
+    min-height: 250px !important;
+  }
+  
+  .home-hero .carousel-container img {
+    min-height: 250px !important;
+  }
+  
+  .home-hero .carousel-container .nav-arrows {
+    display: none !important;
+  }
+  
+  .home-stats {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
+  
+  .home-stats .stat-item {
+    padding: 0.8rem !important;
+  }
+  
+  .home-stats .stat-item .stat-number {
+    font-size: 1.5rem !important;
+  }
+  
+  /* ===== EXPERIENCE PAGE MOBILE ===== */
+  .experience-item {
+    padding-left: 0.8rem !important;
+  }
+  
+  .experience-item h3 {
+    font-size: 1rem !important;
+  }
+  
+  .experience-item .exp-meta {
+    font-size: 0.75rem !important;
+    flex-direction: column !important;
+    gap: 0.2rem !important;
+  }
+  
+  /* ===== PROJECTS PAGE MOBILE ===== */
+  .projects-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .project-card {
+    padding: 1rem !important;
+  }
+  
+  .project-card .tech-stack {
+    flex-wrap: wrap !important;
+  }
+  
+  .project-card .project-links {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  
+  .project-card .project-links a {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  /* ===== SKILLS PAGE MOBILE ===== */
+  .skills-category {
+    margin-bottom: 1rem !important;
+  }
+  
+  .skills-category .skills-list {
+    gap: 0.3rem !important;
+  }
+  
+  .skills-category .skills-list .skill-tag {
+    font-size: 0.75rem !important;
+    padding: 0.2rem 0.6rem !important;
+  }
+  
+  /* ===== SERVICES PAGE MOBILE ===== */
+  .services-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.8rem !important;
+  }
+  
+  .service-card {
+    padding: 1rem !important;
+  }
+  
+  .service-card .service-icon {
+    font-size: 1.5rem !important;
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+  
+  /* ===== CERTIFICATIONS PAGE MOBILE ===== */
+  .certifications-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .certification-card {
+    padding: 1rem !important;
+  }
+  
+  .certification-card .cert-image {
+    height: 100px !important;
+  }
+  
+  /* ===== BLOG PAGE MOBILE ===== */
+  .blog-post {
+    padding: 0.8rem 0 !important;
+  }
+  
+  .blog-post h3 {
+    font-size: 0.95rem !important;
+  }
+  
+  .blog-post .blog-meta {
+    font-size: 0.75rem !important;
+    flex-wrap: wrap !important;
+  }
+  
+  .blog-post .blog-actions {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  
+  .blog-post .blog-actions button,
+  .blog-post .blog-actions a {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  /* ===== CONTACT PAGE MOBILE ===== */
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .contact-info {
+    padding: 1rem !important;
+  }
+  
+  .contact-form {
+    padding: 1rem !important;
+  }
+  
+  .contact-form .form-group {
+    margin-bottom: 0.8rem !important;
+  }
+  
+  /* ===== ADMIN DASHBOARD MOBILE ===== */
+  .admin-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+  
+  .admin-header h1 {
+    font-size: 1.3rem !important;
+  }
+  
+  .admin-header .admin-actions {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+  }
+  
+  .admin-tabs {
+    flex-wrap: wrap !important;
+    gap: 0.3rem !important;
+  }
+  
+  .admin-tabs button {
+    padding: 0.3rem 0.6rem !important;
+    font-size: 0.7rem !important;
+    flex: 1 !important;
+    min-width: 60px !important;
+  }
+  
+  .admin-content-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.8rem !important;
+  }
+  
+  .admin-content-grid .admin-card {
+    padding: 0.8rem !important;
+  }
+  
+  /* ===== EDUCATION SECTION MOBILE ===== */
+  .education-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .education-item {
+    padding: 0.8rem !important;
+  }
+  
+  .education-item .edu-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.3rem !important;
+  }
+  
+  /* ===== CONTACT FIELDS MOBILE ===== */
+  .contact-fields-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.8rem !important;
+  }
+  
+  /* ===== HIRE PAGE MOBILE ===== */
+  .hire-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.8rem !important;
+  }
+  
+  .hire-grid .hire-card {
+    padding: 1rem !important;
+  }
+  
+  .hire-grid .hire-card h4 {
+    font-size: 0.9rem !important;
+  }
+  
+  .hire-grid .hire-card p {
+    font-size: 1rem !important;
+  }
+  
+  /* ===== ABOUT PAGE MOBILE ===== */
+  .about-section {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  
+  .about-section .about-image {
+    width: 150px !important;
+    height: 150px !important;
+  }
+  
+  .about-section .about-content {
+    text-align: center !important;
+  }
+  
+  .about-section .about-actions {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+  
+  .about-section .about-actions a {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  /* ===== FOOTER MOBILE ===== */
+  footer {
+    margin-top: 2rem !important;
+    padding: 1.5rem 0 !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+/* Small Mobile Styles (max-width: 480px) */
+@media screen and (max-width: 480px) {
+  .container {
+    padding: 0 0.8rem;
+  }
+  
+  .card {
+    padding: 0.8rem;
+    border-radius: 16px;
+  }
+  
+  .home-hero .carousel-container {
+    min-height: 200px !important;
+  }
+  
+  .home-hero .carousel-container img {
+    min-height: 200px !important;
+  }
+  
+  .home-stats {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.3rem !important;
+  }
+  
+  .home-stats .stat-item {
+    padding: 0.5rem !important;
+  }
+  
+  .home-stats .stat-item .stat-number {
+    font-size: 1.2rem !important;
+  }
+  
+  .home-stats .stat-item .stat-label {
+    font-size: 0.7rem !important;
+  }
+  
+  .btn-primary,
+  .btn-outline,
+  .btn-danger {
+    padding: 0.4rem 1rem !important;
+    font-size: 0.8rem !important;
+  }
+  
+  .badge {
+    font-size: 0.7rem !important;
+    padding: 0.15rem 0.6rem !important;
+  }
+  
+  .form-input {
+    padding: 0.5rem 0.8rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .modal-content {
+    padding: 1rem !important;
+    width: 95% !important;
+  }
+  
+  .modal-content h3 {
+    font-size: 1.1rem !important;
+  }
+}
+
+/* Hamburger menu - visible only on mobile */
+.hamburger {
+  display: none;
+}
+
+@media screen and (max-width: 767px) {
+  .hamburger {
+    display: flex !important;
+  }
+}
+
+/* Hide scrollbar on mobile for cleaner look */
+@media screen and (max-width: 767px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+}
+
+/* Improve touch targets on mobile */
+@media screen and (max-width: 767px) {
+  button,
+  a,
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Admin toggle button mobile */
+@media screen and (max-width: 767px) {
+  .admin-toggle {
+    bottom: 16px !important;
+    right: 16px !important;
+    padding: 0.4rem 1rem !important;
+    font-size: 0.8rem !important;
+  }
 }

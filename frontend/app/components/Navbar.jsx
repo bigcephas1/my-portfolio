@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext.jsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,8 +10,8 @@ const Navbar = () => {
   const { isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
   const [isDark, setIsDark] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Check for saved theme preference on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
@@ -29,6 +29,14 @@ const Navbar = () => {
     document.documentElement.setAttribute('data-theme', newTheme ? 'dark' : 'light');
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   const navItems = [
     { id: '', label: 'Home', icon: 'fa-home', path: '/' },
     { id: 'about', label: 'About Me', icon: 'fa-user', path: '/about' },
@@ -43,10 +51,12 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await logout();
+    closeMobileMenu();
   };
 
   return (
     <motion.nav 
+      className="navbar"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -60,33 +70,74 @@ const Navbar = () => {
         flexWrap: 'wrap',
         gap: '0.8rem',
         background: 'var(--bg-color)',
-        transition: 'all 0.3s ease'
+        transition: 'all 0.3s ease',
+        position: 'relative'
       }}
     >
-      {/* Logo */}
-      <Link href="/" style={{
-        fontSize: '1.8rem',
-        fontWeight: 700,
-        background: 'linear-gradient(145deg, #1e293b, #2563eb)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-        textDecoration: 'none',
-        padding: '0.2rem 0'
+      {/* Logo and Hamburger */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+        flexWrap: 'wrap'
       }}>
-        <i className="fas fa-cloud" style={{ WebkitTextFillColor: '#2563eb', marginRight: '8px' }}></i>
-        Peter.U
-      </Link>
+        <Link 
+          href="/" 
+          className="navbar-brand"
+          style={{
+            fontSize: '1.8rem',
+            fontWeight: 700,
+            background: 'linear-gradient(145deg, #1e293b, #2563eb)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            textDecoration: 'none',
+            padding: '0.2rem 0'
+          }}
+          onClick={closeMobileMenu}
+        >
+          <i className="fas fa-cloud" style={{ WebkitTextFillColor: '#2563eb', marginRight: '8px' }}></i>
+          Peter.U
+        </Link>
+
+        {/* Hamburger Menu Button - Mobile */}
+        <button
+          className="hamburger"
+          onClick={toggleMobileMenu}
+          aria-label="Toggle menu"
+          style={{
+            display: 'none',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+            padding: '0.3rem 0.5rem',
+            border: '1px solid var(--border-color)',
+            borderRadius: '8px',
+            background: 'var(--bg-color)',
+            color: 'var(--text-color)',
+            minHeight: '44px',
+            minWidth: '44px',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
+        </button>
+      </div>
 
       {/* Navigation Links */}
-      <div style={{ 
-        display: 'flex', 
-        flexWrap: 'wrap', 
-        gap: '0.3rem 0.8rem', 
-        alignItems: 'center',
-        flex: 1,
-        justifyContent: 'flex-end'
-      }}>
+      <div 
+        className={`nav-links ${isMobileMenuOpen ? 'open' : ''}`}
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '0.3rem 0.8rem',
+          alignItems: 'center',
+          flex: 1,
+          justifyContent: 'flex-end',
+          transition: 'all 0.3s ease'
+        }}
+      >
         {navItems.map(item => {
           const isActive = pathname === item.path || (item.path !== '/' && pathname?.startsWith(item.path));
           return (
@@ -97,6 +148,7 @@ const Navbar = () => {
             >
               <Link
                 href={item.path}
+                onClick={closeMobileMenu}
                 style={{
                   textDecoration: 'none',
                   fontWeight: isActive ? 600 : 500,
@@ -110,7 +162,8 @@ const Navbar = () => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.4rem',
-                  border: isActive ? '1px solid var(--primary-color)' : '1px solid transparent'
+                  border: isActive ? '1px solid var(--primary-color)' : '1px solid transparent',
+                  minHeight: '44px'
                 }}
               >
                 <i className={`fas ${item.icon}`} style={{ fontSize: '0.85rem' }}></i>
@@ -125,6 +178,7 @@ const Navbar = () => {
           whileHover={{ scale: 1.1, rotate: 180 }}
           whileTap={{ scale: 0.9 }}
           onClick={toggleTheme}
+          className="theme-toggle"
           style={{
             padding: '0.5rem 0.7rem',
             borderRadius: '50%',
@@ -139,7 +193,9 @@ const Navbar = () => {
             justifyContent: 'center',
             width: '42px',
             height: '42px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            minHeight: '44px',
+            minWidth: '44px'
           }}
           aria-label="Toggle theme"
         >
@@ -152,9 +208,10 @@ const Navbar = () => {
 
         {/* Auth Buttons */}
         {isAuthenticated ? (
-          <>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
             <Link
               href="/admin/dashboard"
+              onClick={closeMobileMenu}
               style={{
                 textDecoration: 'none',
                 padding: '0.4rem 1.2rem',
@@ -168,7 +225,8 @@ const Navbar = () => {
                 transition: 'all 0.3s ease',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.4rem'
+                gap: '0.4rem',
+                minHeight: '44px'
               }}
             >
               <i className="fas fa-dashboard"></i> Dashboard
@@ -189,15 +247,17 @@ const Navbar = () => {
                 transition: 'all 0.3s ease',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.4rem'
+                gap: '0.4rem',
+                minHeight: '44px'
               }}
             >
               <i className="fas fa-sign-out-alt"></i> Logout
             </motion.button>
-          </>
+          </div>
         ) : (
           <Link
             href="/hire"
+            onClick={closeMobileMenu}
             style={{
               textDecoration: 'none',
               padding: '0.4rem 1.5rem',
@@ -212,13 +272,23 @@ const Navbar = () => {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
-              boxShadow: '0 4px 12px var(--primary-shadow)'
+              boxShadow: '0 4px 12px var(--primary-shadow)',
+              minHeight: '44px'
             }}
           >
             <i className="fas fa-handshake"></i> Hire Me
           </Link>
         )}
       </div>
+
+      {/* Mobile Menu Overlay - when menu is open, prevent scrolling */}
+      {isMobileMenuOpen && (
+        <style jsx>{`
+          body {
+            overflow: hidden;
+          }
+        `}</style>
+      )}
     </motion.nav>
   );
 };

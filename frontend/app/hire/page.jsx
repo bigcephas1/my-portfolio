@@ -52,7 +52,7 @@ export default function Hire() {
         Let's work together! Here's what you need to know about working with me.
       </p>
       <div style={{ marginTop: '1.5rem' }}>
-        <div style={{ 
+        <div className="hire-grid" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
           gap: '1.5rem'
