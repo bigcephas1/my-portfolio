@@ -74,15 +74,16 @@ const galleryImageSchema = new mongoose.Schema({
   order: { type: Number, default: 0 }
 });
 
+// ✅ FIXED: Make education fields optional (not required)
 const educationSchema = new mongoose.Schema({
-  id: { type: Number, required: true },
-  degree: { type: String, required: true },
-  institution: { type: String, required: true },
-  year: { type: String, required: true },
-  description: String,
-  certificateImage: String,
-  grade: String,
-  location: String
+  id: { type: Number }, // Not required
+  degree: { type: String },
+  institution: { type: String },
+  year: { type: String },
+  description: { type: String, default: '' },
+  certificateImage: { type: String, default: '' },
+  grade: { type: String, default: '' },
+  location: { type: String, default: '' }
 });
 
 const hireSchema = new mongoose.Schema({
@@ -93,28 +94,28 @@ const hireSchema = new mongoose.Schema({
 });
 
 const aboutSchema = new mongoose.Schema({
-  bio: { type: String, required: true },
-  experience: { type: String },
-  philosophy: String,
-  interests: [String],
-  profileImage: String
+  bio: { type: String, default: '' },
+  experience: { type: String, default: '' },
+  philosophy: { type: String, default: '' },
+  interests: { type: [String], default: [] },
+  profileImage: { type: String, default: '' }
 });
 
 const portfolioSchema = new mongoose.Schema({
   avatar: { type: String, default: '' },
-  galleryImages: [galleryImageSchema],
-  about: aboutSchema,
-  intro: { type: String, required: true },
-  summary: { type: String, required: true },
-  experience: [experienceSchema],
-  projects: [projectSchema],
-  skills: [skillSchema],
-  services: [serviceSchema],
-  blog: [blogSchema],
-  contactFields: [contactFieldSchema],
-  certifications: [certificationSchema],
-  education: educationSchema,
-  hire: hireSchema,
+  galleryImages: { type: [galleryImageSchema], default: [] },
+  about: { type: aboutSchema, default: () => ({}) },
+  intro: { type: String, default: '' },
+  summary: { type: String, default: '' },
+  experience: { type: [experienceSchema], default: [] },
+  projects: { type: [projectSchema], default: [] },
+  skills: { type: [skillSchema], default: [] },
+  services: { type: [serviceSchema], default: [] },
+  blog: { type: [blogSchema], default: [] },
+  contactFields: { type: [contactFieldSchema], default: [] },
+  certifications: { type: [certificationSchema], default: [] },
+  education: { type: [educationSchema], default: [] },
+  hire: { type: hireSchema, default: () => ({}) },
   lastUpdated: { type: Date, default: Date.now }
 }, {
   timestamps: true
