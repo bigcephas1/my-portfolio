@@ -25,26 +25,28 @@ const startServer = async () => {
     await connectDB();
 
     app.use(helmet({
-      crossOriginResourcePolicy: { policy: "cross-origin" }, // ✅ Allow cross-origin resource sharing
+      crossOriginResourcePolicy: { policy: "cross-origin" },
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
           scriptSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", "data:", "https:", "http://localhost:5000", "http://localhost:3000"],
+          imgSrc: ["'self'", "data:", "https:", "http://localhost:5000", "https://res.cloudinary.com"],
         },
       },
     }));
 
+    // ✅ CORS for Render
     const allowedOrigins = [
       process.env.FRONTEND_URL || 'http://localhost:3000',
-      'https://yourdomain.com'
+      'https://your-frontend-url.onrender.com',
+      'http://localhost:3000'
     ];
 
     app.use(cors({
       origin: (origin, callback) => {
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
+        if (allowedOrigins.includes(origin) || origin?.includes('.onrender.com')) {
           callback(null, true);
         } else {
           callback(new Error('Not allowed by CORS'));
@@ -59,31 +61,14 @@ const startServer = async () => {
     app.use(express.urlencoded({ extended: true, limit: '10mb' }));
     app.use(cookieParser());
 
-    // ✅ Serve static files from uploads directory with proper headers
-    app.use('/uploads', (req, res, next) => {
-      // Set CORS headers for images
-      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-      next();
-    }, express.static(path.join(__dirname, 'src/uploads'), {
-      setHeaders: (res, path, stat) => {
-        // Additional headers for static files
-        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        // Cache images for better performance
-        res.setHeader('Cache-Control', 'public, max-age=86400');
-      }
-    }));
+    // Serve static files from uploads directory
+    app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
 
-    // Request logging
     app.use((req, res, next) => {
       console.log(`${req.method} ${req.url} - ${new Date().toISOString()}`);
       next();
     });
 
-    // Routes
     app.use('/api/auth', authRoutes);
     app.use('/api/portfolio', portfolioRoutes);
     app.use('/api/contact', contactRoutes);
@@ -97,13 +82,6 @@ const startServer = async () => {
       });
     });
 
-    if (process.env.NODE_ENV === 'production') {
-      app.use(express.static(path.join(__dirname, '../frontend/out')));
-      app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../frontend/out/index.html'));
-      });
-    }
-
     app.use(notFoundHandler);
     app.use(errorHandler);
 
@@ -115,7 +93,6 @@ const startServer = async () => {
       console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
       console.log(`📁 Uploads: ${path.join(__dirname, 'src/uploads')}`);
-      console.log(`📁 Uploads URL: http://localhost:${PORT}/uploads/`);
     });
 
   } catch (error) {
