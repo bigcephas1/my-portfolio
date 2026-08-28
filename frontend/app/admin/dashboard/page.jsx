@@ -268,6 +268,12 @@ function DashboardContent() {
                 </div>
                 <div style={{ color: '#64748b' }}>Contact Fields</div>
               </div>
+              <div className="card" style={{ textAlign: 'center', padding: '1.5rem' }}>
+                <div style={{ fontSize: '2rem', fontWeight: 700, color: '#2563eb' }}>
+                  {portfolio.education?.length || 0}
+                </div>
+                <div style={{ color: '#64748b' }}>Education</div>
+              </div>
             </div>
             
             <div style={{ marginTop: '2rem' }}>
@@ -860,7 +866,7 @@ function DashboardContent() {
                 </div>
               )}
 
-              {/* Projects Section */}
+              {/* Projects Section - Fixed Tech Stack */}
               {editingItem === 'projects' && (
                 <div className="card">
                   <h4>Projects</h4>
@@ -916,22 +922,124 @@ function DashboardContent() {
                           setFormData(updatedFormData);
                         }}
                       />
-                      <input
-                        className="form-input"
-                        style={{ marginTop: '0.5rem' }}
-                        placeholder="Tech Stack (comma separated)"
-                        value={project.techStack?.join(', ') || ''}
-                        onChange={(e) => {
-                          const techStack = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                          const updatedFormData = {
-                            ...formData,
-                            projects: formData.projects.map(item => 
-                              item.id === project.id ? { ...item, techStack } : item
-                            )
-                          };
-                          setFormData(updatedFormData);
-                        }}
-                      />
+                      
+                      {/* Fixed Tech Stack with chips */}
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <label className="form-label" style={{ fontSize: '0.85rem' }}>Tech Stack</label>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginBottom: '0.3rem' }}>
+                          Type a technology and press Enter or click Add.
+                        </p>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                          <input
+                            className="form-input"
+                            id={`tech-input-${project.id}`}
+                            placeholder="e.g., React, Node.js, MongoDB"
+                            style={{ flex: 1 }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const input = e.target;
+                                const value = input.value.trim();
+                                if (value) {
+                                  const currentTech = Array.isArray(project.techStack) ? project.techStack : [];
+                                  if (!currentTech.includes(value)) {
+                                    const updatedFormData = {
+                                      ...formData,
+                                      projects: formData.projects.map(item => 
+                                        item.id === project.id ? { ...item, techStack: [...currentTech, value] } : item
+                                      )
+                                    };
+                                    setFormData(updatedFormData);
+                                    input.value = '';
+                                  } else {
+                                    toast.error('This technology already exists');
+                                  }
+                                }
+                              }
+                            }}
+                          />
+                          <button
+                            className="btn-primary"
+                            style={{ padding: '0.3rem 1rem', whiteSpace: 'nowrap', fontSize: '0.85rem' }}
+                            onClick={() => {
+                              const input = document.getElementById(`tech-input-${project.id}`);
+                              const value = input?.value?.trim();
+                              if (value) {
+                                const currentTech = Array.isArray(project.techStack) ? project.techStack : [];
+                                if (!currentTech.includes(value)) {
+                                  const updatedFormData = {
+                                    ...formData,
+                                    projects: formData.projects.map(item => 
+                                      item.id === project.id ? { ...item, techStack: [...currentTech, value] } : item
+                                    )
+                                  };
+                                  setFormData(updatedFormData);
+                                  input.value = '';
+                                } else {
+                                  toast.error('This technology already exists');
+                                }
+                              }
+                            }}
+                          >
+                            <i className="fas fa-plus"></i> Add
+                          </button>
+                        </div>
+                        
+                        {project.techStack && project.techStack.length > 0 && (
+                          <div style={{ 
+                            display: 'flex', 
+                            flexWrap: 'wrap', 
+                            gap: '0.3rem', 
+                            marginTop: '0.3rem',
+                            padding: '0.3rem',
+                            background: 'var(--bg-color)',
+                            borderRadius: '8px',
+                            border: '1px solid var(--border-color)'
+                          }}>
+                            {project.techStack.map((tech, i) => (
+                              <span key={i} style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.3rem',
+                                background: 'var(--primary-bg)',
+                                color: 'var(--primary-color)',
+                                padding: '0.1rem 0.5rem',
+                                borderRadius: '12px',
+                                fontSize: '0.8rem',
+                                border: '1px solid var(--primary-color)'
+                              }}>
+                                {tech}
+                                <button
+                                  onClick={() => {
+                                    const updatedTech = project.techStack.filter((_, idx) => idx !== i);
+                                    const updatedFormData = {
+                                      ...formData,
+                                      projects: formData.projects.map(item => 
+                                        item.id === project.id ? { ...item, techStack: updatedTech } : item
+                                      )
+                                    };
+                                    setFormData(updatedFormData);
+                                  }}
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--primary-color)',
+                                    cursor: 'pointer',
+                                    padding: '0 0 0 0.3rem',
+                                    fontSize: '0.7rem',
+                                    opacity: 0.7
+                                  }}
+                                  onMouseEnter={(e) => e.target.style.opacity = '1'}
+                                  onMouseLeave={(e) => e.target.style.opacity = '0.7'}
+                                >
+                                  <i className="fas fa-times"></i>
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      
                       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                         <input
                           className="form-input"
@@ -1489,241 +1597,241 @@ function DashboardContent() {
                 </div>
               )}
 
-              {/* Education Section */}
+              {/* Education Section - Fixed with Add/Delete */}
               {editingItem === 'education' && (
                 <div className="card">
                   <h4>Education</h4>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '1rem' }}>
-                    Add your education details and upload certificates/documents.
+                    Add multiple education entries. Each entry can have a certificate image.
                   </p>
                   
-                  <div style={{ marginBottom: '1rem' }}>
-                    <label className="form-label">Degree/Certification</label>
-                    <input
-                      className="form-input"
-                      value={formData.education?.degree || ''}
-                      onChange={(e) => {
-                        const updatedFormData = {
-                          ...formData,
-                          education: { ...formData.education, degree: e.target.value }
-                        };
-                        setFormData(updatedFormData);
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ marginBottom: '1rem' }}>
-                    <label className="form-label">Institution</label>
-                    <input
-                      className="form-input"
-                      value={formData.education?.institution || ''}
-                      onChange={(e) => {
-                        const updatedFormData = {
-                          ...formData,
-                          education: { ...formData.education, institution: e.target.value }
-                        };
-                        setFormData(updatedFormData);
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                    <div style={{ flex: 1 }}>
-                      <label className="form-label">Year</label>
-                      <input
-                        className="form-input"
-                        value={formData.education?.year || ''}
-                        onChange={(e) => {
-                          const updatedFormData = {
-                            ...formData,
-                            education: { ...formData.education, year: e.target.value }
-                          };
-                          setFormData(updatedFormData);
-                        }}
-                      />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label className="form-label">Grade (optional)</label>
-                      <input
-                        className="form-input"
-                        placeholder="e.g., First Class, Magna Cum Laude"
-                        value={formData.education?.grade || ''}
-                        onChange={(e) => {
-                          const updatedFormData = {
-                            ...formData,
-                            education: { ...formData.education, grade: e.target.value }
-                          };
-                          setFormData(updatedFormData);
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ marginBottom: '1rem' }}>
-                    <label className="form-label">Location (optional)</label>
-                    <input
-                      className="form-input"
-                      placeholder="e.g., Online, London, UK"
-                      value={formData.education?.location || ''}
-                      onChange={(e) => {
-                        const updatedFormData = {
-                          ...formData,
-                          education: { ...formData.education, location: e.target.value }
-                        };
-                        setFormData(updatedFormData);
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ marginBottom: '1rem' }}>
-                    <label className="form-label">Description</label>
-                    <textarea
-                      className="form-input"
-                      rows="2"
-                      value={formData.education?.description || ''}
-                      onChange={(e) => {
-                        const updatedFormData = {
-                          ...formData,
-                          education: { ...formData.education, description: e.target.value }
-                        };
-                        setFormData(updatedFormData);
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ 
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '12px',
-                    padding: '1rem',
-                    marginBottom: '1rem'
+                  <button className="btn-primary" style={{ marginBottom: '1rem' }} onClick={() => {
+                    setNewItem({ 
+                      degree: '', 
+                      institution: '', 
+                      year: '', 
+                      description: '',
+                      grade: '',
+                      location: '',
+                      certificateImage: ''
+                    });
+                    setShowAddModal(true);
                   }}>
-                    <label className="form-label" style={{ fontSize: '0.95rem' }}>
-                      <i className="fas fa-certificate"></i> Certificate/Document
-                    </label>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '0.5rem' }}>
-                      Upload your degree certificate, diploma, or any official document.
-                    </p>
-                    
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                      <label style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.4rem 1rem',
-                        background: 'var(--primary-color)',
-                        color: 'white',
-                        borderRadius: '40px',
-                        cursor: 'pointer',
-                        fontSize: '0.85rem'
+                    <i className="fas fa-plus"></i> Add Education
+                  </button>
+
+                  {formData.education && Array.isArray(formData.education) && formData.education.length > 0 ? (
+                    formData.education.map((edu, index) => (
+                      <div key={edu.id || index} style={{ 
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '12px',
+                        padding: '1rem',
+                        marginBottom: '1rem',
+                        background: 'var(--bg-color)'
                       }}>
-                        <i className="fas fa-cloud-upload-alt"></i>
-                        {uploading ? 'Uploading...' : 'Upload Certificate'}
-                        <input
-                          type="file"
-                          accept="image/*,application/pdf"
-                          onChange={async (e) => {
-                            const file = e.target.files[0];
-                            if (!file) return;
-                            
-                            const formDataUpload = new FormData();
-                            formDataUpload.append('image', file);
-                            setUploading(true);
-                            
-                            try {
-                              const res = await axios.post(`${API_URL}/portfolio/upload`, formDataUpload, {
-                                headers: { 'Content-Type': 'multipart/form-data' }
-                              });
-                              const imageUrl = res.data.data.url;
-                              const updatedFormData = {
-                                ...formData,
-                                education: { ...formData.education, certificateImage: imageUrl }
-                              };
-                              setFormData(updatedFormData);
-                              await handleUpdate(updatedFormData);
-                              toast.success('Certificate uploaded successfully!');
-                            } catch (error) {
-                              toast.error('Failed to upload certificate');
-                            } finally {
-                              setUploading(false);
-                            }
-                          }}
-                          style={{ display: 'none' }}
-                          disabled={uploading}
-                        />
-                      </label>
-                      
-                      {formData.education?.certificateImage && (
-                        <>
-                          <span style={{ fontSize: '0.85rem', color: '#22c55e' }}>
-                            <i className="fas fa-check-circle"></i> File uploaded
-                          </span>
-                          <button
-                            className="btn-outline"
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                          <strong>{edu.degree || 'Untitled Education'}</strong>
+                          <button 
+                            className="btn-danger" 
                             style={{ padding: '0.2rem 0.8rem', fontSize: '0.8rem' }}
-                            onClick={() => window.open(formData.education.certificateImage, '_blank')}
+                            onClick={() => handleDeleteItem('education', edu.id)}
                           >
-                            <i className="fas fa-eye"></i> View
+                            <i className="fas fa-trash"></i>
                           </button>
-                          <button
-                            className="btn-danger"
-                            style={{ padding: '0.2rem 0.8rem', fontSize: '0.8rem' }}
-                            onClick={() => {
-                              if (confirm('Remove certificate image?')) {
+                        </div>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                          <div>
+                            <label className="form-label" style={{ fontSize: '0.8rem' }}>Degree</label>
+                            <input
+                              className="form-input"
+                              value={edu.degree || ''}
+                              onChange={(e) => {
                                 const updatedFormData = {
                                   ...formData,
-                                  education: { ...formData.education, certificateImage: '' }
+                                  education: formData.education.map(item => 
+                                    item.id === edu.id ? { ...item, degree: e.target.value } : item
+                                  )
                                 };
                                 setFormData(updatedFormData);
-                                handleUpdate(updatedFormData);
-                              }
-                            }}
-                          >
-                            <i className="fas fa-trash"></i> Remove
-                          </button>
-                        </>
-                      )}
-                    </div>
-
-                    {formData.education?.certificateImage && (
-                      <div style={{ 
-                        marginTop: '0.5rem', 
-                        padding: '0.5rem',
-                        background: 'var(--bg-color)',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border-color)'
-                      }}>
-                        {formData.education.certificateImage.match(/\.(pdf)$/i) ? (
-                          <div style={{ 
-                            padding: '1rem',
-                            background: '#fef3c7',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem'
-                          }}>
-                            <i className="fas fa-file-pdf" style={{ fontSize: '2rem', color: '#dc2626' }}></i>
-                            <span>PDF Document</span>
+                              }}
+                            />
                           </div>
-                        ) : (
-                          <img 
-                            src={formData.education.certificateImage} 
-                            alt="Certificate"
-                            style={{ 
-                              maxWidth: '100%', 
-                              maxHeight: '200px', 
-                              borderRadius: '8px',
-                              objectFit: 'contain',
-                              background: 'white'
+                          <div>
+                            <label className="form-label" style={{ fontSize: '0.8rem' }}>Institution</label>
+                            <input
+                              className="form-input"
+                              value={edu.institution || ''}
+                              onChange={(e) => {
+                                const updatedFormData = {
+                                  ...formData,
+                                  education: formData.education.map(item => 
+                                    item.id === edu.id ? { ...item, institution: e.target.value } : item
+                                  )
+                                };
+                                setFormData(updatedFormData);
+                              }}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.5rem' }}>
+                          <div>
+                            <label className="form-label" style={{ fontSize: '0.8rem' }}>Year</label>
+                            <input
+                              className="form-input"
+                              value={edu.year || ''}
+                              onChange={(e) => {
+                                const updatedFormData = {
+                                  ...formData,
+                                  education: formData.education.map(item => 
+                                    item.id === edu.id ? { ...item, year: e.target.value } : item
+                                  )
+                                };
+                                setFormData(updatedFormData);
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label className="form-label" style={{ fontSize: '0.8rem' }}>Grade (optional)</label>
+                            <input
+                              className="form-input"
+                              placeholder="e.g., First Class, Magna Cum Laude"
+                              value={edu.grade || ''}
+                              onChange={(e) => {
+                                const updatedFormData = {
+                                  ...formData,
+                                  education: formData.education.map(item => 
+                                    item.id === edu.id ? { ...item, grade: e.target.value } : item
+                                  )
+                                };
+                                setFormData(updatedFormData);
+                              }}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.5rem' }}>
+                          <div>
+                            <label className="form-label" style={{ fontSize: '0.8rem' }}>Location (optional)</label>
+                            <input
+                              className="form-input"
+                              placeholder="e.g., Online, London, UK"
+                              value={edu.location || ''}
+                              onChange={(e) => {
+                                const updatedFormData = {
+                                  ...formData,
+                                  education: formData.education.map(item => 
+                                    item.id === edu.id ? { ...item, location: e.target.value } : item
+                                  )
+                                };
+                                setFormData(updatedFormData);
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label className="form-label" style={{ fontSize: '0.8rem' }}>Certificate Image</label>
+                            <div style={{ display: 'flex', gap: '0.3rem' }}>
+                              <input
+                                className="form-input"
+                                placeholder="Image URL"
+                                value={edu.certificateImage || ''}
+                                onChange={(e) => {
+                                  const updatedFormData = {
+                                    ...formData,
+                                    education: formData.education.map(item => 
+                                      item.id === edu.id ? { ...item, certificateImage: e.target.value } : item
+                                    )
+                                  };
+                                  setFormData(updatedFormData);
+                                }}
+                              />
+                              <label className="btn-primary" style={{ cursor: 'pointer', padding: '0.3rem 0.8rem', fontSize: '0.7rem', whiteSpace: 'nowrap' }}>
+                                <i className="fas fa-upload"></i>
+                                <input
+                                  type="file"
+                                  accept="image/*,application/pdf"
+                                  style={{ display: 'none' }}
+                                  onChange={async (e) => {
+                                    const file = e.target.files[0];
+                                    if (!file) return;
+                                    
+                                    const formDataUpload = new FormData();
+                                    formDataUpload.append('image', file);
+                                    setUploading(true);
+                                    
+                                    try {
+                                      const res = await axios.post(`${API_URL}/portfolio/upload`, formDataUpload, {
+                                        headers: { 'Content-Type': 'multipart/form-data' }
+                                      });
+                                      const imageUrl = res.data.data.url;
+                                      const updatedFormData = {
+                                        ...formData,
+                                        education: formData.education.map(item => 
+                                          item.id === edu.id ? { ...item, certificateImage: imageUrl } : item
+                                        )
+                                      };
+                                      setFormData(updatedFormData);
+                                      await handleUpdate(updatedFormData);
+                                      toast.success('Certificate uploaded!');
+                                    } catch (error) {
+                                      toast.error('Upload failed');
+                                    } finally {
+                                      setUploading(false);
+                                    }
+                                  }}
+                                />
+                              </label>
+                            </div>
+                            {edu.certificateImage && (
+                              <div style={{ marginTop: '0.3rem', fontSize: '0.8rem', color: '#22c55e' }}>
+                                <i className="fas fa-check-circle"></i> File uploaded
+                                <button 
+                                  className="btn-outline" 
+                                  style={{ padding: '0.1rem 0.5rem', fontSize: '0.7rem', marginLeft: '0.3rem' }}
+                                  onClick={() => window.open(edu.certificateImage, '_blank')}
+                                >
+                                  <i className="fas fa-eye"></i> View
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div style={{ marginTop: '0.5rem' }}>
+                          <label className="form-label" style={{ fontSize: '0.8rem' }}>Description</label>
+                          <textarea
+                            className="form-input"
+                            rows="2"
+                            value={edu.description || ''}
+                            onChange={(e) => {
+                              const updatedFormData = {
+                                ...formData,
+                                education: formData.education.map(item => 
+                                  item.id === edu.id ? { ...item, description: e.target.value } : item
+                                )
+                              };
+                              setFormData(updatedFormData);
                             }}
-                            onError={(e) => { e.target.style.display = 'none'; }}
                           />
-                        )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-
-                  <button className="btn-primary" onClick={() => handleUpdate()}>
-                    <i className="fas fa-save"></i> Save Education Details
+                    ))
+                  ) : (
+                    <div style={{ 
+                      padding: '2rem',
+                      textAlign: 'center',
+                      border: '2px dashed var(--border-color)',
+                      borderRadius: '12px',
+                      color: 'var(--text-light)'
+                    }}>
+                      <i className="fas fa-graduation-cap" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}></i>
+                      No education entries yet. Click "Add Education" to add your first entry!
+                    </div>
+                  )}
+                  
+                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => handleUpdate()}>
+                    <i className="fas fa-save"></i> Save All Education
                   </button>
                 </div>
               )}
