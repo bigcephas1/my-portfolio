@@ -23,6 +23,7 @@ function DashboardContent() {
   const [editingItem, setEditingItem] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newItem, setNewItem] = useState({});
+  const [newInterest, setNewInterest] = useState('');
 
   useEffect(() => {
     fetchPortfolio();
@@ -34,9 +35,10 @@ function DashboardContent() {
       const res = await axios.get(`${API_URL}/portfolio`);
       setPortfolio(res.data.data);
       setFormData(res.data.data);
+      setLoading(false);
     } catch (error) {
+      console.error('Error fetching portfolio:', error);
       toast.error('Failed to fetch portfolio data');
-    } finally {
       setLoading(false);
     }
   };
@@ -54,19 +56,22 @@ function DashboardContent() {
     }
   };
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (dataToUpdate = null) => {
     try {
-      const res = await axios.put(`${API_URL}/portfolio`, formData);
+      const updateData = dataToUpdate || formData;
+      const res = await axios.put(`${API_URL}/portfolio`, updateData);
       setPortfolio(res.data.data);
+      setFormData(res.data.data);
       toast.success('Portfolio updated successfully!');
       return true;
     } catch (error) {
+      console.error('Update error:', error);
       toast.error('Failed to update portfolio');
       return false;
     }
   };
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = async (e, targetField = 'avatar') => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -79,11 +84,23 @@ function DashboardContent() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       const imageUrl = res.data.data.url;
-      setFormData(prev => ({
-        ...prev,
-        avatar: imageUrl,
-        about: { ...prev.about, profileImage: imageUrl }
-      }));
+      
+      if (targetField === 'avatar') {
+        const updatedFormData = {
+          ...formData,
+          avatar: imageUrl,
+          about: { ...formData.about, profileImage: imageUrl }
+        };
+        setFormData(updatedFormData);
+        await handleUpdate(updatedFormData);
+      } else if (targetField === 'about') {
+        const updatedFormData = {
+          ...formData,
+          about: { ...formData.about, profileImage: imageUrl }
+        };
+        setFormData(updatedFormData);
+        await handleUpdate(updatedFormData);
+      }
       toast.success('Image uploaded successfully!');
     } catch (error) {
       toast.error('Failed to upload image');
@@ -103,7 +120,7 @@ function DashboardContent() {
     setFormData(updatedFormData);
     setShowAddModal(false);
     setNewItem({});
-    await handleUpdate();
+    await handleUpdate(updatedFormData);
     toast.success(`${section.slice(0, -1)} added successfully!`);
   };
 
@@ -113,7 +130,7 @@ function DashboardContent() {
     const updatedSection = formData[section].filter(item => item.id !== id);
     const updatedFormData = { ...formData, [section]: updatedSection };
     setFormData(updatedFormData);
-    await handleUpdate();
+    await handleUpdate(updatedFormData);
     toast.success('Item deleted successfully!');
   };
 
@@ -123,6 +140,50 @@ function DashboardContent() {
     );
     const updatedFormData = { ...formData, [section]: updatedSection };
     setFormData(updatedFormData);
+  };
+
+  const handleAddInterest = async () => {
+    if (!newInterest.trim()) {
+      toast.error('Please enter an interest');
+      return;
+    }
+
+    const currentInterests = Array.isArray(formData?.about?.interests) ? formData.about.interests : [];
+    
+    if (currentInterests.includes(newInterest.trim())) {
+      toast.error('This interest already exists');
+      return;
+    }
+
+    const updatedInterests = [...currentInterests, newInterest.trim()];
+    const updatedFormData = {
+      ...formData,
+      about: { 
+        ...formData.about, 
+        interests: updatedInterests 
+      }
+    };
+    
+    setFormData(updatedFormData);
+    setNewInterest('');
+    await handleUpdate(updatedFormData);
+    toast.success('Interest added!');
+  };
+
+  const handleRemoveInterest = async (index) => {
+    const currentInterests = Array.isArray(formData?.about?.interests) ? formData.about.interests : [];
+    const updatedInterests = currentInterests.filter((_, i) => i !== index);
+    const updatedFormData = {
+      ...formData,
+      about: { 
+        ...formData.about, 
+        interests: updatedInterests 
+      }
+    };
+    
+    setFormData(updatedFormData);
+    await handleUpdate(updatedFormData);
+    toast.success('Interest removed!');
   };
 
   const handleUpdateContactStatus = async (contactId, status) => {
@@ -152,14 +213,6 @@ function DashboardContent() {
   };
 
   if (loading) return <LoadingSpinner />;
-
-  // Common icon suggestions for contact fields
-  const iconSuggestions = [
-    'fa-envelope', 'fa-phone', 'fa-github', 'fa-linkedin', 'fa-twitter', 
-    'fa-youtube', 'fa-instagram', 'fa-facebook', 'fa-tiktok', 'fa-twitch',
-    'fa-discord', 'fa-reddit', 'fa-medium', 'fa-dev', 'fa-hashnode',
-    'fa-globe', 'fa-map-pin', 'fa-whatsapp', 'fa-telegram', 'fa-signal'
-  ];
 
   const renderTab = () => {
     switch (activeTab) {
@@ -379,7 +432,7 @@ function DashboardContent() {
             <h3>✏️ Edit Content</h3>
             <div style={{ marginTop: '1.5rem' }}>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-                {['avatar', 'about', 'experience', 'projects', 'skills', 'services', 'blog', 'certifications', 'contactFields', 'hire'].map(section => (
+                {['avatar', 'about', 'experience', 'projects', 'skills', 'services', 'blog', 'certifications', 'education', 'contactFields', 'hire'].map(section => (
                   <button
                     key={section}
                     className={editingItem === section ? 'btn-primary' : 'btn-outline'}
@@ -394,31 +447,196 @@ function DashboardContent() {
               {/* Avatar Section */}
               {editingItem === 'avatar' && (
                 <div className="card" style={{ marginBottom: '1rem' }}>
-                  <h4>Profile Image</h4>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
-                    <div>
-                      {formData.avatar ? (
-                        <img src={formData.avatar} alt="Avatar" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }} />
-                      ) : (
-                        <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <i className="fas fa-user" style={{ fontSize: '2rem', color: '#64748b' }}></i>
+                  <h4>Profile Images Gallery</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '1rem' }}>
+                    Upload multiple images for the carousel. They will auto-rotate on the homepage.
+                  </p>
+                  
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <label className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block' }}>
+                      <i className="fas fa-upload"></i> {uploading ? 'Uploading...' : 'Add Image to Gallery'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+
+                          const formDataUpload = new FormData();
+                          formDataUpload.append('image', file);
+                          setUploading(true);
+
+                          try {
+                            await axios.post(`${API_URL}/portfolio/upload`, formDataUpload, {
+                              headers: { 'Content-Type': 'multipart/form-data' }
+                            });
+                            await fetchPortfolio();
+                            toast.success('Image added to gallery!');
+                          } catch (error) {
+                            toast.error('Failed to upload image');
+                          } finally {
+                            setUploading(false);
+                          }
+                        }}
+                        style={{ display: 'none' }}
+                        disabled={uploading}
+                        multiple
+                      />
+                    </label>
+                  </div>
+
+                  {formData.galleryImages && formData.galleryImages.length > 0 ? (
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
+                      gap: '1rem',
+                      marginTop: '1rem'
+                    }}>
+                      {formData.galleryImages.map((img, index) => (
+                        <div key={img.id} style={{
+                          position: 'relative',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          background: 'var(--bg-color)'
+                        }}>
+                          <img 
+                            src={img.url} 
+                            alt={img.alt || `Gallery image ${index + 1}`}
+                            style={{
+                              width: '100%',
+                              height: '150px',
+                              objectFit: 'cover'
+                            }}
+                          />
+                          <div style={{
+                            position: 'absolute',
+                            top: '5px',
+                            right: '5px',
+                            display: 'flex',
+                            gap: '0.3rem'
+                          }}>
+                            <button
+                              className="btn-danger"
+                              style={{ 
+                                padding: '0.2rem 0.5rem', 
+                                fontSize: '0.7rem',
+                                borderRadius: '50%',
+                                width: '28px',
+                                height: '28px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                              onClick={async () => {
+                                if (!confirm('Remove this image from gallery?')) return;
+                                try {
+                                  await axios.delete(`${API_URL}/portfolio/gallery/${img.id}`);
+                                  await fetchPortfolio();
+                                  toast.success('Image removed');
+                                } catch (error) {
+                                  toast.error('Failed to remove image');
+                                }
+                              }}
+                            >
+                              <i className="fas fa-times"></i>
+                            </button>
+                          </div>
+                          <div style={{
+                            padding: '0.3rem 0.5rem',
+                            fontSize: '0.7rem',
+                            color: 'var(--text-light)',
+                            textAlign: 'center',
+                            background: 'var(--bg-card)'
+                          }}>
+                            #{index + 1}
+                          </div>
                         </div>
-                      )}
+                      ))}
                     </div>
-                    <div>
-                      <label className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block' }}>
-                        <i className="fas fa-upload"></i> {uploading ? 'Uploading...' : 'Upload Image'}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          style={{ display: 'none' }}
-                          disabled={uploading}
-                        />
-                      </label>
-                      <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.5rem' }}>
-                        Supported: JPG, PNG, GIF, WebP (Max 5MB)
-                      </p>
+                  ) : (
+                    <div style={{
+                      padding: '2rem',
+                      textAlign: 'center',
+                      border: '2px dashed var(--border-color)',
+                      borderRadius: '12px',
+                      color: 'var(--text-light)'
+                    }}>
+                      <i className="fas fa-images" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}></i>
+                      No images in gallery yet. Upload your first image!
+                    </div>
+                  )}
+
+                  <div style={{ 
+                    marginTop: '2rem',
+                    paddingTop: '1.5rem',
+                    borderTop: '1px solid var(--border-color)'
+                  }}>
+                    <h5>Primary Avatar</h5>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+                      <div>
+                        {formData.avatar ? (
+                          <img 
+                            src={formData.avatar} 
+                            alt="Avatar" 
+                            style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} 
+                          />
+                        ) : (
+                          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <i className="fas fa-user" style={{ fontSize: '2rem', color: '#64748b' }}></i>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block', fontSize: '0.85rem' }}>
+                          <i className="fas fa-upload"></i> Update Avatar
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (!file) return;
+
+                              const formDataUpload = new FormData();
+                              formDataUpload.append('image', file);
+                              setUploading(true);
+
+                              try {
+                                const res = await axios.post(`${API_URL}/portfolio/upload`, formDataUpload, {
+                                  headers: { 'Content-Type': 'multipart/form-data' }
+                                });
+                                const imageUrl = res.data.data.url;
+                                
+                                const updatedFormData = { ...formData, avatar: imageUrl };
+                                setFormData(updatedFormData);
+                                await handleUpdate(updatedFormData);
+                                toast.success('Avatar updated!');
+                              } catch (error) {
+                                toast.error('Failed to update avatar');
+                              } finally {
+                                setUploading(false);
+                              }
+                            }}
+                            style={{ display: 'none' }}
+                            disabled={uploading}
+                          />
+                        </label>
+                        {formData.avatar && (
+                          <button
+                            className="btn-danger"
+                            style={{ marginLeft: '0.5rem', padding: '0.3rem 1rem', fontSize: '0.85rem' }}
+                            onClick={async () => {
+                              if (!confirm('Remove avatar?')) return;
+                              const updatedFormData = { ...formData, avatar: '' };
+                              setFormData(updatedFormData);
+                              await handleUpdate(updatedFormData);
+                              toast.success('Avatar removed');
+                            }}
+                          >
+                            <i className="fas fa-trash"></i> Remove
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -428,75 +646,143 @@ function DashboardContent() {
               {editingItem === 'about' && (
                 <div className="card">
                   <h4>About Me</h4>
+                  
                   <div style={{ marginBottom: '1rem' }}>
                     <label className="form-label">Bio</label>
                     <textarea
                       className="form-input"
                       rows="3"
                       value={formData.about?.bio || ''}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        about: { ...formData.about, bio: e.target.value }
-                      })}
+                      onChange={(e) => {
+                        const updatedFormData = {
+                          ...formData,
+                          about: { ...formData.about, bio: e.target.value }
+                        };
+                        setFormData(updatedFormData);
+                      }}
                     />
                   </div>
+
                   <div style={{ marginBottom: '1rem' }}>
                     <label className="form-label">Experience Summary</label>
                     <textarea
                       className="form-input"
                       rows="2"
                       value={formData.about?.experience || ''}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        about: { ...formData.about, experience: e.target.value }
-                      })}
+                      onChange={(e) => {
+                        const updatedFormData = {
+                          ...formData,
+                          about: { ...formData.about, experience: e.target.value }
+                        };
+                        setFormData(updatedFormData);
+                      }}
                     />
                   </div>
+
                   <div style={{ marginBottom: '1rem' }}>
                     <label className="form-label">Philosophy</label>
                     <input
                       className="form-input"
                       value={formData.about?.philosophy || ''}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        about: { ...formData.about, philosophy: e.target.value }
-                      })}
+                      onChange={(e) => {
+                        const updatedFormData = {
+                          ...formData,
+                          about: { ...formData.about, philosophy: e.target.value }
+                        };
+                        setFormData(updatedFormData);
+                      }}
                     />
                   </div>
+
                   <div style={{ marginBottom: '1rem' }}>
                     <label className="form-label">Interests</label>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '0.3rem' }}>
-                      Enter interests separated by commas
+                      Type an interest and press Enter or click Add. Click the × on any tag to remove it.
                     </p>
-                    <input
-                      className="form-input"
-                      value={Array.isArray(formData.about?.interests) ? formData.about.interests.join(', ') : ''}
-                      onChange={(e) => {
-                        const interests = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                        setFormData({
-                          ...formData,
-                          about: { ...formData.about, interests }
-                        });
-                      }}
-                      placeholder="e.g., Cloud Computing, Kubernetes, DevOps Culture, Open Source"
-                    />
-                    {formData.about?.interests && formData.about.interests.length > 0 && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', marginTop: '0.5rem' }}>
+                    
+                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <input
+                        className="form-input"
+                        value={newInterest}
+                        onChange={(e) => setNewInterest(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddInterest();
+                          }
+                        }}
+                        placeholder="e.g., Cloud Computing, Kubernetes, Machine Learning"
+                        style={{ flex: 1 }}
+                      />
+                      <button
+                        className="btn-primary"
+                        style={{ padding: '0.3rem 1.5rem', whiteSpace: 'nowrap' }}
+                        onClick={handleAddInterest}
+                      >
+                        <i className="fas fa-plus"></i> Add
+                      </button>
+                    </div>
+
+                    {formData.about?.interests && formData.about.interests.length > 0 ? (
+                      <div style={{ 
+                        display: 'flex', 
+                        flexWrap: 'wrap', 
+                        gap: '0.5rem', 
+                        marginTop: '0.5rem',
+                        padding: '0.5rem',
+                        background: 'var(--bg-color)',
+                        borderRadius: '12px',
+                        border: '1px solid var(--border-color)',
+                        minHeight: '40px'
+                      }}>
                         {formData.about.interests.map((interest, i) => (
                           <span key={i} style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
                             background: 'var(--primary-bg)',
                             color: 'var(--primary-color)',
-                            padding: '0.1rem 0.6rem',
-                            borderRadius: '12px',
-                            fontSize: '0.8rem'
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '20px',
+                            fontSize: '0.85rem',
+                            border: '1px solid var(--primary-color)'
                           }}>
                             {interest}
+                            <button
+                              onClick={() => handleRemoveInterest(i)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--primary-color)',
+                                cursor: 'pointer',
+                                padding: '0 0 0 0.3rem',
+                                fontSize: '0.7rem',
+                                opacity: 0.7
+                              }}
+                              onMouseEnter={(e) => e.target.style.opacity = '1'}
+                              onMouseLeave={(e) => e.target.style.opacity = '0.7'}
+                            >
+                              <i className="fas fa-times"></i>
+                            </button>
                           </span>
                         ))}
                       </div>
+                    ) : (
+                      <div style={{ 
+                        padding: '0.5rem',
+                        background: 'var(--bg-color)',
+                        borderRadius: '12px',
+                        border: '1px dashed var(--border-color)',
+                        color: 'var(--text-light)',
+                        textAlign: 'center',
+                        fontSize: '0.85rem'
+                      }}>
+                        <i className="fas fa-info-circle"></i> No interests added yet.
+                      </div>
                     )}
                   </div>
-                  <button className="btn-primary" onClick={handleUpdate}>
+
+                  <button className="btn-primary" onClick={() => handleUpdate()}>
                     <i className="fas fa-save"></i> Save About
                   </button>
                 </div>
@@ -525,14 +811,30 @@ function DashboardContent() {
                         style={{ marginTop: '0.5rem' }}
                         placeholder="Company"
                         value={exp.company}
-                        onChange={(e) => handleUpdateItem('experience', exp.id, 'company', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            experience: formData.experience.map(item => 
+                              item.id === exp.id ? { ...item, company: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <input
                         className="form-input"
                         style={{ marginTop: '0.5rem' }}
                         placeholder="Period (e.g., Jan 2022 - Present)"
                         value={exp.period}
-                        onChange={(e) => handleUpdateItem('experience', exp.id, 'period', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            experience: formData.experience.map(item => 
+                              item.id === exp.id ? { ...item, period: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <textarea
                         className="form-input"
@@ -540,11 +842,19 @@ function DashboardContent() {
                         rows="3"
                         placeholder="Description"
                         value={exp.description}
-                        onChange={(e) => handleUpdateItem('experience', exp.id, 'description', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            experience: formData.experience.map(item => 
+                              item.id === exp.id ? { ...item, description: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                     </div>
                   ))}
-                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={handleUpdate}>
+                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => handleUpdate()}>
                     <i className="fas fa-save"></i> Save All Experience
                   </button>
                 </div>
@@ -580,7 +890,15 @@ function DashboardContent() {
                         style={{ marginTop: '0.5rem' }}
                         placeholder="Project Name"
                         value={project.name}
-                        onChange={(e) => handleUpdateItem('projects', project.id, 'name', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            projects: formData.projects.map(item => 
+                              item.id === project.id ? { ...item, name: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <textarea
                         className="form-input"
@@ -588,14 +906,31 @@ function DashboardContent() {
                         rows="2"
                         placeholder="Description"
                         value={project.description}
-                        onChange={(e) => handleUpdateItem('projects', project.id, 'description', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            projects: formData.projects.map(item => 
+                              item.id === project.id ? { ...item, description: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <input
                         className="form-input"
                         style={{ marginTop: '0.5rem' }}
-                        placeholder="Tech Stack (comma separated, e.g., React, Node.js, MongoDB)"
+                        placeholder="Tech Stack (comma separated)"
                         value={project.techStack?.join(', ') || ''}
-                        onChange={(e) => handleUpdateItem('projects', project.id, 'techStack', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+                        onChange={(e) => {
+                          const techStack = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                          const updatedFormData = {
+                            ...formData,
+                            projects: formData.projects.map(item => 
+                              item.id === project.id ? { ...item, techStack } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                         <input
@@ -603,14 +938,30 @@ function DashboardContent() {
                           style={{ flex: 1 }}
                           placeholder="GitHub URL"
                           value={project.githubUrl || ''}
-                          onChange={(e) => handleUpdateItem('projects', project.id, 'githubUrl', e.target.value)}
+                          onChange={(e) => {
+                            const updatedFormData = {
+                              ...formData,
+                              projects: formData.projects.map(item => 
+                                item.id === project.id ? { ...item, githubUrl: e.target.value } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
                         />
                         <input
                           className="form-input"
                           style={{ flex: 1 }}
                           placeholder="Live Demo URL"
                           value={project.liveUrl || ''}
-                          onChange={(e) => handleUpdateItem('projects', project.id, 'liveUrl', e.target.value)}
+                          onChange={(e) => {
+                            const updatedFormData = {
+                              ...formData,
+                              projects: formData.projects.map(item => 
+                                item.id === project.id ? { ...item, liveUrl: e.target.value } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
                         />
                       </div>
                       <input
@@ -618,11 +969,19 @@ function DashboardContent() {
                         style={{ marginTop: '0.5rem' }}
                         placeholder="Project Image URL (optional)"
                         value={project.image || ''}
-                        onChange={(e) => handleUpdateItem('projects', project.id, 'image', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            projects: formData.projects.map(item => 
+                              item.id === project.id ? { ...item, image: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                     </div>
                   ))}
-                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={handleUpdate}>
+                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => handleUpdate()}>
                     <i className="fas fa-save"></i> Save All Projects
                   </button>
                 </div>
@@ -650,13 +1009,29 @@ function DashboardContent() {
                         className="form-input"
                         style={{ marginTop: '0.5rem' }}
                         value={skill.name}
-                        onChange={(e) => handleUpdateItem('skills', skill.id, 'name', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            skills: formData.skills.map(item => 
+                              item.id === skill.id ? { ...item, name: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <select
                         className="form-input"
                         style={{ marginTop: '0.5rem' }}
                         value={skill.category || 'Other'}
-                        onChange={(e) => handleUpdateItem('skills', skill.id, 'category', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            skills: formData.skills.map(item => 
+                              item.id === skill.id ? { ...item, category: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       >
                         <option value="Cloud">Cloud</option>
                         <option value="Containers">Containers</option>
@@ -676,11 +1051,19 @@ function DashboardContent() {
                         max="100"
                         placeholder="Level (0-100)"
                         value={skill.level || 50}
-                        onChange={(e) => handleUpdateItem('skills', skill.id, 'level', parseInt(e.target.value))}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            skills: formData.skills.map(item => 
+                              item.id === skill.id ? { ...item, level: parseInt(e.target.value) } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                     </div>
                   ))}
-                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={handleUpdate}>
+                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => handleUpdate()}>
                     <i className="fas fa-save"></i> Save All Skills
                   </button>
                 </div>
@@ -708,25 +1091,49 @@ function DashboardContent() {
                         className="form-input"
                         style={{ marginTop: '0.5rem' }}
                         value={service.name}
-                        onChange={(e) => handleUpdateItem('services', service.id, 'name', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            services: formData.services.map(item => 
+                              item.id === service.id ? { ...item, name: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <textarea
                         className="form-input"
                         style={{ marginTop: '0.5rem' }}
                         rows="2"
                         value={service.description}
-                        onChange={(e) => handleUpdateItem('services', service.id, 'description', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            services: formData.services.map(item => 
+                              item.id === service.id ? { ...item, description: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <input
                         className="form-input"
                         style={{ marginTop: '0.5rem' }}
                         placeholder="Font Awesome icon class (e.g., fa-cloud)"
                         value={service.icon || ''}
-                        onChange={(e) => handleUpdateItem('services', service.id, 'icon', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            services: formData.services.map(item => 
+                              item.id === service.id ? { ...item, icon: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                     </div>
                   ))}
-                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={handleUpdate}>
+                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => handleUpdate()}>
                     <i className="fas fa-save"></i> Save All Services
                   </button>
                 </div>
@@ -765,14 +1172,30 @@ function DashboardContent() {
                         style={{ marginTop: '0.5rem' }}
                         placeholder="Title"
                         value={post.title}
-                        onChange={(e) => handleUpdateItem('blog', post.id, 'title', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            blog: formData.blog.map(item => 
+                              item.id === post.id ? { ...item, title: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <input
                         className="form-input"
                         style={{ marginTop: '0.5rem' }}
                         type="date"
                         value={post.date}
-                        onChange={(e) => handleUpdateItem('blog', post.id, 'date', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            blog: formData.blog.map(item => 
+                              item.id === post.id ? { ...item, date: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <textarea
                         className="form-input"
@@ -780,29 +1203,61 @@ function DashboardContent() {
                         rows="2"
                         placeholder="Excerpt"
                         value={post.excerpt}
-                        onChange={(e) => handleUpdateItem('blog', post.id, 'excerpt', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            blog: formData.blog.map(item => 
+                              item.id === post.id ? { ...item, excerpt: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <input
                         className="form-input"
                         style={{ marginTop: '0.5rem' }}
                         placeholder="Blog URL (if published elsewhere)"
                         value={post.url || ''}
-                        onChange={(e) => handleUpdateItem('blog', post.id, 'url', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            blog: formData.blog.map(item => 
+                              item.id === post.id ? { ...item, url: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <input
                           className="form-input"
                           style={{ flex: 1, marginTop: '0.5rem' }}
-                          placeholder="Platform (e.g., Medium, Dev.to)"
+                          placeholder="Platform"
                           value={post.platform || ''}
-                          onChange={(e) => handleUpdateItem('blog', post.id, 'platform', e.target.value)}
+                          onChange={(e) => {
+                            const updatedFormData = {
+                              ...formData,
+                              blog: formData.blog.map(item => 
+                                item.id === post.id ? { ...item, platform: e.target.value } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
                         />
                         <input
                           className="form-input"
                           style={{ flex: 1, marginTop: '0.5rem' }}
-                          placeholder="Read time (e.g., 5 min read)"
+                          placeholder="Read time"
                           value={post.readTime || ''}
-                          onChange={(e) => handleUpdateItem('blog', post.id, 'readTime', e.target.value)}
+                          onChange={(e) => {
+                            const updatedFormData = {
+                              ...formData,
+                              blog: formData.blog.map(item => 
+                                item.id === post.id ? { ...item, readTime: e.target.value } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
                         />
                       </div>
                       <input
@@ -810,11 +1265,35 @@ function DashboardContent() {
                         style={{ marginTop: '0.5rem' }}
                         placeholder="Tags (comma separated)"
                         value={post.tags?.join(', ') || ''}
-                        onChange={(e) => handleUpdateItem('blog', post.id, 'tags', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+                        onChange={(e) => {
+                          const tags = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                          const updatedFormData = {
+                            ...formData,
+                            blog: formData.blog.map(item => 
+                              item.id === post.id ? { ...item, tags } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
+                      />
+                      <input
+                        className="form-input"
+                        style={{ marginTop: '0.5rem' }}
+                        placeholder="Image URL"
+                        value={post.image || ''}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            blog: formData.blog.map(item => 
+                              item.id === post.id ? { ...item, image: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                     </div>
                   ))}
-                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={handleUpdate}>
+                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => handleUpdate()}>
                     <i className="fas fa-save"></i> Save All Blog Posts
                   </button>
                 </div>
@@ -853,7 +1332,15 @@ function DashboardContent() {
                         style={{ marginTop: '0.5rem' }}
                         placeholder="Certification Name"
                         value={cert.name}
-                        onChange={(e) => handleUpdateItem('certifications', cert.id, 'name', e.target.value)}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            certifications: formData.certifications.map(item => 
+                              item.id === cert.id ? { ...item, name: e.target.value } : item
+                            )
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                         <input
@@ -861,14 +1348,30 @@ function DashboardContent() {
                           style={{ flex: 1 }}
                           placeholder="Issuer"
                           value={cert.issuer}
-                          onChange={(e) => handleUpdateItem('certifications', cert.id, 'issuer', e.target.value)}
+                          onChange={(e) => {
+                            const updatedFormData = {
+                              ...formData,
+                              certifications: formData.certifications.map(item => 
+                                item.id === cert.id ? { ...item, issuer: e.target.value } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
                         />
                         <input
                           className="form-input"
                           style={{ flex: 1 }}
-                          placeholder="Date (e.g., 2024)"
+                          placeholder="Date"
                           value={cert.date}
-                          onChange={(e) => handleUpdateItem('certifications', cert.id, 'date', e.target.value)}
+                          onChange={(e) => {
+                            const updatedFormData = {
+                              ...formData,
+                              certifications: formData.certifications.map(item => 
+                                item.id === cert.id ? { ...item, date: e.target.value } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
                         />
                       </div>
                       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
@@ -877,14 +1380,30 @@ function DashboardContent() {
                           style={{ flex: 1 }}
                           placeholder="Credential ID"
                           value={cert.credentialId || ''}
-                          onChange={(e) => handleUpdateItem('certifications', cert.id, 'credentialId', e.target.value)}
+                          onChange={(e) => {
+                            const updatedFormData = {
+                              ...formData,
+                              certifications: formData.certifications.map(item => 
+                                item.id === cert.id ? { ...item, credentialId: e.target.value } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
                         />
                         <input
                           className="form-input"
                           style={{ flex: 1 }}
                           placeholder="Credential URL"
                           value={cert.credentialUrl || ''}
-                          onChange={(e) => handleUpdateItem('certifications', cert.id, 'credentialUrl', e.target.value)}
+                          onChange={(e) => {
+                            const updatedFormData = {
+                              ...formData,
+                              certifications: formData.certifications.map(item => 
+                                item.id === cert.id ? { ...item, credentialUrl: e.target.value } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
                         />
                       </div>
                       <div style={{ marginTop: '0.5rem' }}>
@@ -901,8 +1420,7 @@ function DashboardContent() {
                             color: 'white',
                             borderRadius: '40px',
                             cursor: 'pointer',
-                            fontSize: '0.85rem',
-                            transition: 'all 0.3s ease'
+                            fontSize: '0.85rem'
                           }}>
                             <i className="fas fa-cloud-upload-alt"></i>
                             Choose File
@@ -922,7 +1440,14 @@ function DashboardContent() {
                                     headers: { 'Content-Type': 'multipart/form-data' }
                                   });
                                   const imageUrl = res.data.data.url;
-                                  handleUpdateItem('certifications', cert.id, 'image', imageUrl);
+                                  const updatedFormData = {
+                                    ...formData,
+                                    certifications: formData.certifications.map(item => 
+                                      item.id === cert.id ? { ...item, image: imageUrl } : item
+                                    )
+                                  };
+                                  setFormData(updatedFormData);
+                                  await handleUpdate(updatedFormData);
                                   toast.success('Certificate uploaded successfully!');
                                 } catch (error) {
                                   toast.error('Failed to upload certificate');
@@ -936,9 +1461,8 @@ function DashboardContent() {
                           </label>
                           {cert.image && (
                             <>
-                              <span style={{ fontSize: '0.85rem', color: 'var(--text-light)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                                <i className="fas fa-check-circle" style={{ color: '#22c55e' }}></i>
-                                File uploaded
+                              <span style={{ fontSize: '0.85rem', color: '#22c55e' }}>
+                                <i className="fas fa-check-circle"></i> File uploaded
                               </span>
                               <button className="btn-outline" style={{ padding: '0.2rem 0.8rem', fontSize: '0.8rem' }} onClick={() => window.open(cert.image, '_blank')}>
                                 <i className="fas fa-eye"></i> View
@@ -949,9 +1473,6 @@ function DashboardContent() {
                       </div>
                       {cert.image && (
                         <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'var(--bg-color)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '0.3rem' }}>
-                            <i className="fas fa-image"></i> Preview:
-                          </div>
                           <img 
                             src={cert.image} 
                             alt={cert.name}
@@ -962,20 +1483,257 @@ function DashboardContent() {
                       )}
                     </div>
                   ))}
-                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={handleUpdate}>
+                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => handleUpdate()}>
                     <i className="fas fa-save"></i> Save All Certifications
                   </button>
                 </div>
               )}
 
-              {/* Contact Fields Section - Dynamic */}
+              {/* Education Section */}
+              {editingItem === 'education' && (
+                <div className="card">
+                  <h4>Education</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '1rem' }}>
+                    Add your education details and upload certificates/documents.
+                  </p>
+                  
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Degree/Certification</label>
+                    <input
+                      className="form-input"
+                      value={formData.education?.degree || ''}
+                      onChange={(e) => {
+                        const updatedFormData = {
+                          ...formData,
+                          education: { ...formData.education, degree: e.target.value }
+                        };
+                        setFormData(updatedFormData);
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Institution</label>
+                    <input
+                      className="form-input"
+                      value={formData.education?.institution || ''}
+                      onChange={(e) => {
+                        const updatedFormData = {
+                          ...formData,
+                          education: { ...formData.education, institution: e.target.value }
+                        };
+                        setFormData(updatedFormData);
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <label className="form-label">Year</label>
+                      <input
+                        className="form-input"
+                        value={formData.education?.year || ''}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            education: { ...formData.education, year: e.target.value }
+                          };
+                          setFormData(updatedFormData);
+                        }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label className="form-label">Grade (optional)</label>
+                      <input
+                        className="form-input"
+                        placeholder="e.g., First Class, Magna Cum Laude"
+                        value={formData.education?.grade || ''}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            education: { ...formData.education, grade: e.target.value }
+                          };
+                          setFormData(updatedFormData);
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Location (optional)</label>
+                    <input
+                      className="form-input"
+                      placeholder="e.g., Online, London, UK"
+                      value={formData.education?.location || ''}
+                      onChange={(e) => {
+                        const updatedFormData = {
+                          ...formData,
+                          education: { ...formData.education, location: e.target.value }
+                        };
+                        setFormData(updatedFormData);
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Description</label>
+                    <textarea
+                      className="form-input"
+                      rows="2"
+                      value={formData.education?.description || ''}
+                      onChange={(e) => {
+                        const updatedFormData = {
+                          ...formData,
+                          education: { ...formData.education, description: e.target.value }
+                        };
+                        setFormData(updatedFormData);
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ 
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '12px',
+                    padding: '1rem',
+                    marginBottom: '1rem'
+                  }}>
+                    <label className="form-label" style={{ fontSize: '0.95rem' }}>
+                      <i className="fas fa-certificate"></i> Certificate/Document
+                    </label>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '0.5rem' }}>
+                      Upload your degree certificate, diploma, or any official document.
+                    </p>
+                    
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <label style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.4rem 1rem',
+                        background: 'var(--primary-color)',
+                        color: 'white',
+                        borderRadius: '40px',
+                        cursor: 'pointer',
+                        fontSize: '0.85rem'
+                      }}>
+                        <i className="fas fa-cloud-upload-alt"></i>
+                        {uploading ? 'Uploading...' : 'Upload Certificate'}
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          onChange={async (e) => {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            
+                            const formDataUpload = new FormData();
+                            formDataUpload.append('image', file);
+                            setUploading(true);
+                            
+                            try {
+                              const res = await axios.post(`${API_URL}/portfolio/upload`, formDataUpload, {
+                                headers: { 'Content-Type': 'multipart/form-data' }
+                              });
+                              const imageUrl = res.data.data.url;
+                              const updatedFormData = {
+                                ...formData,
+                                education: { ...formData.education, certificateImage: imageUrl }
+                              };
+                              setFormData(updatedFormData);
+                              await handleUpdate(updatedFormData);
+                              toast.success('Certificate uploaded successfully!');
+                            } catch (error) {
+                              toast.error('Failed to upload certificate');
+                            } finally {
+                              setUploading(false);
+                            }
+                          }}
+                          style={{ display: 'none' }}
+                          disabled={uploading}
+                        />
+                      </label>
+                      
+                      {formData.education?.certificateImage && (
+                        <>
+                          <span style={{ fontSize: '0.85rem', color: '#22c55e' }}>
+                            <i className="fas fa-check-circle"></i> File uploaded
+                          </span>
+                          <button
+                            className="btn-outline"
+                            style={{ padding: '0.2rem 0.8rem', fontSize: '0.8rem' }}
+                            onClick={() => window.open(formData.education.certificateImage, '_blank')}
+                          >
+                            <i className="fas fa-eye"></i> View
+                          </button>
+                          <button
+                            className="btn-danger"
+                            style={{ padding: '0.2rem 0.8rem', fontSize: '0.8rem' }}
+                            onClick={() => {
+                              if (confirm('Remove certificate image?')) {
+                                const updatedFormData = {
+                                  ...formData,
+                                  education: { ...formData.education, certificateImage: '' }
+                                };
+                                setFormData(updatedFormData);
+                                handleUpdate(updatedFormData);
+                              }
+                            }}
+                          >
+                            <i className="fas fa-trash"></i> Remove
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    {formData.education?.certificateImage && (
+                      <div style={{ 
+                        marginTop: '0.5rem', 
+                        padding: '0.5rem',
+                        background: 'var(--bg-color)',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border-color)'
+                      }}>
+                        {formData.education.certificateImage.match(/\.(pdf)$/i) ? (
+                          <div style={{ 
+                            padding: '1rem',
+                            background: '#fef3c7',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                          }}>
+                            <i className="fas fa-file-pdf" style={{ fontSize: '2rem', color: '#dc2626' }}></i>
+                            <span>PDF Document</span>
+                          </div>
+                        ) : (
+                          <img 
+                            src={formData.education.certificateImage} 
+                            alt="Certificate"
+                            style={{ 
+                              maxWidth: '100%', 
+                              maxHeight: '200px', 
+                              borderRadius: '8px',
+                              objectFit: 'contain',
+                              background: 'white'
+                            }}
+                            onError={(e) => { e.target.style.display = 'none'; }}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <button className="btn-primary" onClick={() => handleUpdate()}>
+                    <i className="fas fa-save"></i> Save Education Details
+                  </button>
+                </div>
+              )}
+
+              {/* Contact Fields Section */}
               {editingItem === 'contactFields' && (
                 <div className="card">
                   <h4>Contact Fields</h4>
                   <p style={{ color: 'var(--text-light)', fontSize: '0.85rem', marginBottom: '1rem' }}>
                     Add any contact field with custom icon. Supports Font Awesome icons.
-                    <br />
-                    <strong>Common icons:</strong> fa-envelope, fa-phone, fa-github, fa-linkedin, fa-twitter, fa-youtube, fa-instagram, fa-facebook, fa-tiktok, fa-discord, fa-medium, fa-dev, fa-hashnode, fa-whatsapp, fa-telegram, fa-globe, fa-map-pin
                   </p>
                   
                   <button className="btn-primary" style={{ marginBottom: '1rem' }} onClick={() => {
@@ -1012,31 +1770,62 @@ function DashboardContent() {
                         <input
                           className="form-input"
                           style={{ marginBottom: '0.5rem' }}
-                          placeholder="Label (e.g., GitHub, Twitter)"
+                          placeholder="Label"
                           value={field.label}
-                          onChange={(e) => handleUpdateItem('contactFields', field.id, 'label', e.target.value)}
+                          onChange={(e) => {
+                            const updatedFormData = {
+                              ...formData,
+                              contactFields: formData.contactFields.map(item => 
+                                item.id === field.id ? { ...item, label: e.target.value } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
                         />
                         <input
                           className="form-input"
                           style={{ marginBottom: '0.5rem' }}
-                          placeholder="Value (e.g., username or URL)"
+                          placeholder="Value"
                           value={field.value}
-                          onChange={(e) => handleUpdateItem('contactFields', field.id, 'value', e.target.value)}
+                          onChange={(e) => {
+                            const updatedFormData = {
+                              ...formData,
+                              contactFields: formData.contactFields.map(item => 
+                                item.id === field.id ? { ...item, value: e.target.value } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
                         />
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <div style={{ flex: 1 }}>
-                            <input
-                              className="form-input"
-                              placeholder="Icon (e.g., fa-github)"
-                              value={field.icon}
-                              onChange={(e) => handleUpdateItem('contactFields', field.id, 'icon', e.target.value)}
-                            />
-                          </div>
+                          <input
+                            className="form-input"
+                            style={{ flex: 1 }}
+                            placeholder="Icon (e.g., fa-github)"
+                            value={field.icon}
+                            onChange={(e) => {
+                              const updatedFormData = {
+                                ...formData,
+                                contactFields: formData.contactFields.map(item => 
+                                  item.id === field.id ? { ...item, icon: e.target.value } : item
+                                )
+                              };
+                              setFormData(updatedFormData);
+                            }}
+                          />
                           <select
                             className="form-input"
                             style={{ flex: 0.8 }}
                             value={field.type}
-                            onChange={(e) => handleUpdateItem('contactFields', field.id, 'type', e.target.value)}
+                            onChange={(e) => {
+                              const updatedFormData = {
+                                ...formData,
+                                contactFields: formData.contactFields.map(item => 
+                                  item.id === field.id ? { ...item, type: e.target.value } : item
+                                )
+                              };
+                              setFormData(updatedFormData);
+                            }}
                           >
                             <option value="url">URL</option>
                             <option value="email">Email</option>
@@ -1045,14 +1834,11 @@ function DashboardContent() {
                             <option value="text">Text</option>
                           </select>
                         </div>
-                        <div style={{ marginTop: '0.3rem', fontSize: '0.8rem', color: 'var(--text-light)' }}>
-                          <i className="fas fa-info-circle"></i> Type: {field.type}
-                        </div>
                       </div>
                     ))}
                   </div>
 
-                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={handleUpdate}>
+                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => handleUpdate()}>
                     <i className="fas fa-save"></i> Save All Contact Fields
                   </button>
                 </div>
@@ -1068,14 +1854,17 @@ function DashboardContent() {
                       <input
                         className="form-input"
                         value={formData.hire?.[field] || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          hire: { ...formData.hire, [field]: e.target.value }
-                        })}
+                        onChange={(e) => {
+                          const updatedFormData = {
+                            ...formData,
+                            hire: { ...formData.hire, [field]: e.target.value }
+                          };
+                          setFormData(updatedFormData);
+                        }}
                       />
                     </div>
                   ))}
-                  <button className="btn-primary" onClick={handleUpdate}>
+                  <button className="btn-primary" onClick={() => handleUpdate()}>
                     <i className="fas fa-save"></i> Save Hire Info
                   </button>
                 </div>
@@ -1121,25 +1910,8 @@ function DashboardContent() {
 
       {/* Add Item Modal */}
       {showAddModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(4px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: '24px',
-            padding: '2rem',
-            maxWidth: '500px',
-            width: '90%',
-            maxHeight: '80vh',
-            overflow: 'auto'
-          }}>
+        <div className="modal-overlay">
+          <div className="modal-content">
             <h3>Add New {editingItem?.slice(0, -1) || 'Item'}</h3>
             {Object.keys(newItem).map(key => (
               <div key={key} style={{ marginBottom: '1rem' }}>
@@ -1151,7 +1923,7 @@ function DashboardContent() {
                     value={Array.isArray(newItem[key]) ? newItem[key].join(', ') : ''}
                     onChange={(e) => setNewItem({ ...newItem, [key]: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
                   />
-                ) : key === 'description' || key === 'content' || key === 'bio' ? (
+                ) : key === 'description' || key === 'content' ? (
                   <textarea
                     className="form-input"
                     rows="3"

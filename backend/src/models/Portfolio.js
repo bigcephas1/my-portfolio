@@ -55,7 +55,6 @@ const certificationSchema = new mongoose.Schema({
   image: String
 });
 
-// Dynamic contact field schema - allows any field with icon and value
 const contactFieldSchema = new mongoose.Schema({
   id: { type: Number, required: true },
   label: { type: String, required: true },
@@ -68,11 +67,22 @@ const contactFieldSchema = new mongoose.Schema({
   }
 });
 
+const galleryImageSchema = new mongoose.Schema({
+  id: { type: Number, required: true },
+  url: { type: String, required: true },
+  alt: { type: String, default: 'Profile image' },
+  order: { type: Number, default: 0 }
+});
+
 const educationSchema = new mongoose.Schema({
+  id: { type: Number, required: true },
   degree: { type: String, required: true },
   institution: { type: String, required: true },
   year: { type: String, required: true },
-  description: String
+  description: String,
+  certificateImage: String,
+  grade: String,
+  location: String
 });
 
 const hireSchema = new mongoose.Schema({
@@ -92,6 +102,7 @@ const aboutSchema = new mongoose.Schema({
 
 const portfolioSchema = new mongoose.Schema({
   avatar: { type: String, default: '' },
+  galleryImages: [galleryImageSchema],
   about: aboutSchema,
   intro: { type: String, required: true },
   summary: { type: String, required: true },
@@ -109,7 +120,6 @@ const portfolioSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Ensure only one document exists
 portfolioSchema.statics.getSingleton = async function() {
   let doc = await this.findOne();
   if (!doc) {

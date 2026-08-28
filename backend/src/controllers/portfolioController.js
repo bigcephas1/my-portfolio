@@ -1,11 +1,6 @@
 import portfolioService from '../services/portfolioService.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { getImageUrl } from '../config/upload.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Public route
 export const getPortfolio = async (req, res) => {
   try {
     const data = await portfolioService.getPortfolio();
@@ -15,7 +10,6 @@ export const getPortfolio = async (req, res) => {
   }
 };
 
-// Protected routes
 export const updatePortfolio = async (req, res) => {
   try {
     const updatedData = await portfolioService.updatePortfolio(req.body);
@@ -49,14 +43,49 @@ export const uploadImage = async (req, res) => {
       return res.status(400).json({ success: false, error: 'No file uploaded' });
     }
 
-    // Get the uploaded file URL
-    const fileUrl = `/uploads/${req.file.filename}`;
+    let fileUrl;
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    if (isProduction) {
+      // In production, Cloudinary stores the URL in req.file.path
+      fileUrl = req.file.path;
+      console.log('✅ Image uploaded to Cloudinary:', fileUrl);
+    } else {
+      // In development, build local URL
+      const protocol = req.protocol;
+      const host = req.get('host');
+      const baseUrl = `${protocol}://${host}`;
+      fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+      console.log('✅ Image uploaded to local storage:', fileUrl);
+    }
+    
+    const portfolio = await portfolioService.addGalleryImage(fileUrl);
+    
     res.json({ 
       success: true, 
-      data: { url: fileUrl, filename: req.file.filename }
+      data: { 
+        url: fileUrl, 
+        filename: req.file.filename || req.file.originalname,
+        gallery: portfolio.galleryImages
+      }
     });
   } catch (error) {
     console.error('Upload error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const removeGalleryImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const portfolio = await portfolioService.removeGalleryImage(parseInt(id));
+    res.json({ 
+      success: true, 
+      message: 'Image removed successfully',
+      data: { gallery: portfolio.galleryImages }
+    });
+  } catch (error) {
+    console.error('Remove image error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 };

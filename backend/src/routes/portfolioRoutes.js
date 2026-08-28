@@ -4,10 +4,11 @@ import {
   updatePortfolio, 
   resetPortfolio,
   getPortfolioStats,
-  uploadImage
+  uploadImage,
+  removeGalleryImage
 } from '../controllers/portfolioController.js';
 import { protect } from '../middleware/auth.js';
-import upload from '../config/upload.js';
+import { upload } from '../config/upload.js';
 
 const router = express.Router();
 
@@ -19,6 +20,9 @@ router.use(protect);
 router.put('/', updatePortfolio);
 router.post('/reset', resetPortfolio);
 router.get('/stats', getPortfolioStats);
+
+// Upload route - uses the conditional upload middleware
 router.post('/upload', upload.single('image'), uploadImage);
+router.delete('/gallery/:id', removeGalleryImage);
 
 export default router;

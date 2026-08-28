@@ -1,4 +1,3 @@
-// src/services/portfolioService.js (corrected from porfolioService.js)
 import Portfolio from '../models/Portfolio.js';
 
 class PortfolioService {
@@ -6,7 +5,6 @@ class PortfolioService {
     try {
       let portfolio = await Portfolio.findOne();
       
-      // If no portfolio exists, create one with default data
       if (!portfolio) {
         const { defaultPortfolioData } = await import('../../seed/defaultData.js');
         portfolio = await Portfolio.create(defaultPortfolioData);
@@ -28,7 +26,6 @@ class PortfolioService {
         portfolio = await Portfolio.create(defaultPortfolioData);
       }
       
-      // Update portfolio with new data
       const updatedPortfolio = await Portfolio.findByIdAndUpdate(
         portfolio._id,
         {
@@ -48,17 +45,54 @@ class PortfolioService {
   async resetToDefault() {
     try {
       const { defaultPortfolioData } = await import('../../seed/defaultData.js');
-      
-      // Delete existing portfolio
       await Portfolio.deleteMany({});
-      
-      // Create new with default data
       const portfolio = await Portfolio.create(defaultPortfolioData);
-      
       return portfolio;
     } catch (error) {
       console.error('Reset portfolio error:', error);
       throw new Error(`Failed to reset portfolio: ${error.message}`);
+    }
+  }
+
+  async addGalleryImage(imageUrl) {
+    try {
+      let portfolio = await Portfolio.findOne();
+      if (!portfolio) {
+        const { defaultPortfolioData } = await import('../../seed/defaultData.js');
+        portfolio = await Portfolio.create(defaultPortfolioData);
+      }
+
+      const newImage = {
+        id: Date.now(),
+        url: imageUrl,
+        alt: 'Profile image',
+        order: portfolio.galleryImages?.length || 0
+      };
+
+      portfolio.galleryImages.push(newImage);
+      await portfolio.save();
+      
+      return portfolio;
+    } catch (error) {
+      console.error('Add gallery image error:', error);
+      throw new Error(`Failed to add gallery image: ${error.message}`);
+    }
+  }
+
+  async removeGalleryImage(imageId) {
+    try {
+      let portfolio = await Portfolio.findOne();
+      if (!portfolio) {
+        throw new Error('Portfolio not found');
+      }
+
+      portfolio.galleryImages = portfolio.galleryImages.filter(img => img.id !== imageId);
+      await portfolio.save();
+      
+      return portfolio;
+    } catch (error) {
+      console.error('Remove gallery image error:', error);
+      throw new Error(`Failed to remove gallery image: ${error.message}`);
     }
   }
 
@@ -73,6 +107,7 @@ class PortfolioService {
         totalBlogs: portfolio.blog.length,
         totalSkills: portfolio.skills.length,
         totalServices: portfolio.services.length,
+        totalGalleryImages: portfolio.galleryImages?.length || 0,
         lastUpdated: portfolio.lastUpdated,
         createdAt: portfolio.createdAt
       };

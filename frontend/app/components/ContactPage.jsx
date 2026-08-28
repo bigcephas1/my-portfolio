@@ -41,7 +41,6 @@ const ContactPage = ({ data }) => {
     }
   };
 
-  // Helper to render contact field based on type
   const renderContactField = (field) => {
     const iconClass = field.icon.startsWith('fa-') ? field.icon : `fa-${field.icon}`;
     const isFab = ['fa-github', 'fa-linkedin', 'fa-twitter', 'fa-youtube', 'fa-instagram', 
@@ -105,24 +104,86 @@ const ContactPage = ({ data }) => {
       >
         <h3><i className="fas fa-address-card"></i> Contact Information</h3>
         <div style={{ marginTop: '1.5rem' }}>
-          {/* Dynamic Contact Fields */}
           {contactFields.map(field => renderContactField(field))}
-
-          {/* Address field is now handled in the dynamic fields */}
         </div>
 
         <div style={{ marginTop: '2rem' }}>
           <h4>Education</h4>
-          <p style={{ marginTop: '0.3rem' }}>
-            {education.degree || 'N/A'}<br />
-            {education.institution || 'N/A'}
-            {education.year && ` (${education.year})`}
-          </p>
-          {education.description && (
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', marginTop: '0.2rem' }}>
-              {education.description}
-            </p>
-          )}
+          <div style={{ 
+            display: 'flex', 
+            gap: '1rem', 
+            alignItems: 'flex-start',
+            marginTop: '0.5rem'
+          }}>
+            {education.certificateImage && (
+              <div style={{ 
+                flexShrink: 0,
+                width: '80px',
+                height: '80px',
+                overflow: 'hidden',
+                borderRadius: '12px',
+                border: '1px solid var(--border-color)',
+                cursor: 'pointer'
+              }}
+              onClick={() => window.open(education.certificateImage, '_blank')}
+              >
+                {education.certificateImage.match(/\.(pdf)$/i) ? (
+                  <div style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: '#fef3c7'
+                  }}>
+                    <i className="fas fa-file-pdf" style={{ fontSize: '2rem', color: '#dc2626' }}></i>
+                  </div>
+                ) : (
+                  <img 
+                    src={education.certificateImage} 
+                    alt="Certificate"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                )}
+              </div>
+            )}
+            <div>
+              <p style={{ marginTop: '0.3rem' }}>
+                <strong>{education.degree || 'N/A'}</strong><br />
+                {education.institution || 'N/A'}
+                {education.year && ` (${education.year})`}
+                {education.location && ` • ${education.location}`}
+              </p>
+              {education.grade && (
+                <p style={{ fontSize: '0.9rem', color: 'var(--primary-color)', fontWeight: 500 }}>
+                  {education.grade}
+                </p>
+              )}
+              {education.description && (
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', marginTop: '0.2rem' }}>
+                  {education.description}
+                </p>
+              )}
+              {education.certificateImage && (
+                <a 
+                  href={education.certificateImage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ 
+                    fontSize: '0.85rem',
+                    color: 'var(--primary-color)',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    marginTop: '0.3rem'
+                  }}
+                >
+                  <i className="fas fa-external-link-alt"></i> View Certificate
+                </a>
+              )}
+            </div>
+          </div>
         </div>
 
         {certifications.length > 0 && (

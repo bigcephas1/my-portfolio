@@ -1,5 +1,6 @@
 export const defaultPortfolioData = {
   avatar: '',
+  galleryImages: [],
   intro: 'DevSecOps & Cloud Engineer with 3+ years of experience designing, automating, and managing secure, scalable cloud infrastructure on AWS. Experienced in Infrastructure as Code (Terraform), Kubernetes orchestration, CI/CD automation, Linux administration, cloud networking, monitoring, observability, and production operations.',
   summary: 'Proven track record of reducing deployment time, optimizing infrastructure costs, improving platform reliability, and automating software delivery pipelines through modern DevOps practices.',
   about: {
@@ -114,10 +115,14 @@ export const defaultPortfolioData = {
     }
   ],
   education: {
+    id: 1,
     degree: 'Bachelor of Science in Computer Science',
     institution: 'University of the People',
     year: '2024',
-    description: 'Specialized in Cloud Computing and Distributed Systems'
+    description: 'Specialized in Cloud Computing and Distributed Systems',
+    certificateImage: '',
+    grade: 'First Class Honors',
+    location: 'Online'
   },
   hire: {
     salaryExpectation: '$60,000 - $100,000 USD per year',

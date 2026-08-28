@@ -28,13 +28,27 @@ export default function Hire() {
   };
 
   if (loading) return <LoadingSpinner />;
+  
+  if (!data) {
+    return (
+      <div className="card">
+        <h2><i className="fas fa-handshake"></i> Hire Me</h2>
+        <p style={{ color: 'var(--text-light)', marginTop: '1rem' }}>
+          <i className="fas fa-info-circle"></i> No data available.
+        </p>
+        <button className="btn-primary" onClick={fetchData} style={{ marginTop: '1rem' }}>
+          <i className="fas fa-sync"></i> Retry
+        </button>
+      </div>
+    );
+  }
 
   const hire = data.hire || {};
 
   return (
     <div className="card">
       <h2><i className="fas fa-handshake"></i> Hire Me</h2>
-      <p style={{ color: '#64748b', marginTop: '0.5rem' }}>
+      <p style={{ color: 'var(--text-light)', marginTop: '0.5rem' }}>
         Let's work together! Here's what you need to know about working with me.
       </p>
       <div style={{ marginTop: '1.5rem' }}>
@@ -43,27 +57,59 @@ export default function Hire() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
           gap: '1.5rem'
         }}>
-          <div style={{ background: '#f1f5f9', padding: '1.5rem', borderRadius: '16px' }}>
-            <h4><i className="fas fa-money-bill-wave" style={{ color: '#2563eb' }}></i> Salary Expectation</h4>
-            <p style={{ fontSize: '1.2rem', marginTop: '0.5rem', fontWeight: 600 }}>
+          <div className="hire-card" style={{ 
+            background: 'var(--bg-color)', 
+            padding: '1.5rem', 
+            borderRadius: '16px',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-color)'
+          }}>
+            <h4 style={{ color: 'var(--text-color)', marginBottom: '0.5rem' }}>
+              <i className="fas fa-money-bill-wave" style={{ color: '#2563eb' }}></i> Salary Expectation
+            </h4>
+            <p style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--text-color)' }}>
               {hire.salaryExpectation || 'Negotiable'}
             </p>
           </div>
-          <div style={{ background: '#f1f5f9', padding: '1.5rem', borderRadius: '16px' }}>
-            <h4><i className="fas fa-clock" style={{ color: '#2563eb' }}></i> Notice Period</h4>
-            <p style={{ fontSize: '1.2rem', marginTop: '0.5rem', fontWeight: 600 }}>
+          <div className="hire-card" style={{ 
+            background: 'var(--bg-color)', 
+            padding: '1.5rem', 
+            borderRadius: '16px',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-color)'
+          }}>
+            <h4 style={{ color: 'var(--text-color)', marginBottom: '0.5rem' }}>
+              <i className="fas fa-clock" style={{ color: '#2563eb' }}></i> Notice Period
+            </h4>
+            <p style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--text-color)' }}>
               {hire.noticePeriod || 'Negotiable'}
             </p>
           </div>
-          <div style={{ background: '#f1f5f9', padding: '1.5rem', borderRadius: '16px' }}>
-            <h4><i className="fas fa-calendar-check" style={{ color: '#2563eb' }}></i> Availability</h4>
-            <p style={{ fontSize: '1.2rem', marginTop: '0.5rem', fontWeight: 600 }}>
+          <div className="hire-card" style={{ 
+            background: 'var(--bg-color)', 
+            padding: '1.5rem', 
+            borderRadius: '16px',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-color)'
+          }}>
+            <h4 style={{ color: 'var(--text-color)', marginBottom: '0.5rem' }}>
+              <i className="fas fa-calendar-check" style={{ color: '#2563eb' }}></i> Availability
+            </h4>
+            <p style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--text-color)' }}>
               {hire.availability || 'Immediate'}
             </p>
           </div>
-          <div style={{ background: '#f1f5f9', padding: '1.5rem', borderRadius: '16px' }}>
-            <h4><i className="fas fa-laptop-house" style={{ color: '#2563eb' }}></i> Preferred Work</h4>
-            <p style={{ fontSize: '1.2rem', marginTop: '0.5rem', fontWeight: 600 }}>
+          <div className="hire-card" style={{ 
+            background: 'var(--bg-color)', 
+            padding: '1.5rem', 
+            borderRadius: '16px',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-color)'
+          }}>
+            <h4 style={{ color: 'var(--text-color)', marginBottom: '0.5rem' }}>
+              <i className="fas fa-laptop-house" style={{ color: '#2563eb' }}></i> Preferred Work
+            </h4>
+            <p style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--text-color)' }}>
               {hire.preferredWork || 'Remote / Hybrid'}
             </p>
           </div>

@@ -28,27 +28,47 @@ export default function About() {
   };
 
   if (loading) return <LoadingSpinner />;
+  
+  if (!data) {
+    return (
+      <div className="card">
+        <h2><i className="fas fa-user"></i> About Me</h2>
+        <p style={{ color: 'var(--text-light)', marginTop: '1rem' }}>
+          <i className="fas fa-info-circle"></i> No data available. Please check your connection.
+        </p>
+        <button className="btn-primary" onClick={fetchData} style={{ marginTop: '1rem' }}>
+          <i className="fas fa-sync"></i> Retry
+        </button>
+      </div>
+    );
+  }
 
   const about = data.about || {};
-  const contact = data.contact || {};
+  // Get the profile image from about or fallback to avatar
+  const profileImage = about.profileImage || data.avatar || '';
 
   return (
     <div className="card">
       <h2><i className="fas fa-user"></i> About Me</h2>
       <div style={{ marginTop: '1.5rem' }}>
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-          {about.profileImage && (
-            <img 
-              src={about.profileImage} 
-              alt="Profile" 
-              style={{ 
-                width: '200px', 
-                height: '200px', 
-                borderRadius: '50%', 
-                objectFit: 'cover',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
-              }}
-            />
+          {profileImage && (
+            <div style={{ flexShrink: 0 }}>
+              <img 
+                src={profileImage} 
+                alt="Profile" 
+                style={{ 
+                  width: '200px', 
+                  height: '200px', 
+                  borderRadius: '50%', 
+                  objectFit: 'cover',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
+                }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
           )}
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
