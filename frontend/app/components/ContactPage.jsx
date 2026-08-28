@@ -17,7 +17,7 @@ const ContactPage = ({ data }) => {
   const [loading, setLoading] = useState(false);
 
   const contactFields = data.contactFields || [];
-  const education = data.education || {};
+  const education = data.education || [];
   const certifications = data.certifications || [];
 
   const handleSubmit = async (e) => {
@@ -107,83 +107,94 @@ const ContactPage = ({ data }) => {
           {contactFields.map(field => renderContactField(field))}
         </div>
 
+        {/* ✅ FIXED: Education as Array */}
         <div style={{ marginTop: '2rem' }}>
           <h4>Education</h4>
-          <div style={{ 
-            display: 'flex', 
-            gap: '1rem', 
-            alignItems: 'flex-start',
-            marginTop: '0.5rem'
-          }}>
-            {education.certificateImage && (
-              <div style={{ 
-                flexShrink: 0,
-                width: '80px',
-                height: '80px',
-                overflow: 'hidden',
-                borderRadius: '12px',
-                border: '1px solid var(--border-color)',
-                cursor: 'pointer'
-              }}
-              onClick={() => window.open(education.certificateImage, '_blank')}
-              >
-                {education.certificateImage.match(/\.(pdf)$/i) ? (
-                  <div style={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: '#fef3c7'
-                  }}>
-                    <i className="fas fa-file-pdf" style={{ fontSize: '2rem', color: '#dc2626' }}></i>
-                  </div>
-                ) : (
-                  <img 
-                    src={education.certificateImage} 
-                    alt="Certificate"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                )}
-              </div>
-            )}
-            <div>
-              <p style={{ marginTop: '0.3rem' }}>
-                <strong>{education.degree || 'N/A'}</strong><br />
-                {education.institution || 'N/A'}
-                {education.year && ` (${education.year})`}
-                {education.location && ` • ${education.location}`}
-              </p>
-              {education.grade && (
-                <p style={{ fontSize: '0.9rem', color: 'var(--primary-color)', fontWeight: 500 }}>
-                  {education.grade}
-                </p>
-              )}
-              {education.description && (
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', marginTop: '0.2rem' }}>
-                  {education.description}
-                </p>
-              )}
-              {education.certificateImage && (
-                <a 
-                  href={education.certificateImage}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ 
-                    fontSize: '0.85rem',
-                    color: 'var(--primary-color)',
-                    textDecoration: 'none',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.3rem',
-                    marginTop: '0.3rem'
+          {education && Array.isArray(education) && education.length > 0 ? (
+            education.map((edu, index) => (
+              <div key={edu.id || index} style={{ 
+                display: 'flex', 
+                gap: '1rem', 
+                alignItems: 'flex-start',
+                marginTop: index > 0 ? '1rem' : '0.5rem',
+                paddingBottom: index < education.length - 1 ? '1rem' : '0',
+                borderBottom: index < education.length - 1 ? '1px solid var(--border-color)' : 'none'
+              }}>
+                {edu.certificateImage && (
+                  <div style={{ 
+                    flexShrink: 0,
+                    width: '80px',
+                    height: '80px',
+                    overflow: 'hidden',
+                    borderRadius: '12px',
+                    border: '1px solid var(--border-color)',
+                    cursor: 'pointer'
                   }}
-                >
-                  <i className="fas fa-external-link-alt"></i> View Certificate
-                </a>
-              )}
-            </div>
-          </div>
+                  onClick={() => window.open(edu.certificateImage, '_blank')}
+                  >
+                    {edu.certificateImage.match(/\.(pdf)$/i) ? (
+                      <div style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: '#fef3c7'
+                      }}>
+                        <i className="fas fa-file-pdf" style={{ fontSize: '2rem', color: '#dc2626' }}></i>
+                      </div>
+                    ) : (
+                      <img 
+                        src={edu.certificateImage} 
+                        alt="Certificate"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    )}
+                  </div>
+                )}
+                <div>
+                  <p style={{ marginTop: '0.3rem' }}>
+                    <strong>{edu.degree || 'N/A'}</strong><br />
+                    {edu.institution || 'N/A'}
+                    {edu.year && ` (${edu.year})`}
+                    {edu.location && ` • ${edu.location}`}
+                  </p>
+                  {edu.grade && (
+                    <p style={{ fontSize: '0.9rem', color: 'var(--primary-color)', fontWeight: 500 }}>
+                      {edu.grade}
+                    </p>
+                  )}
+                  {edu.description && (
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', marginTop: '0.2rem' }}>
+                      {edu.description}
+                    </p>
+                  )}
+                  {edu.certificateImage && (
+                    <a 
+                      href={edu.certificateImage}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ 
+                        fontSize: '0.85rem',
+                        color: 'var(--primary-color)',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.3rem',
+                        marginTop: '0.3rem'
+                      }}
+                    >
+                      <i className="fas fa-external-link-alt"></i> View Certificate
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p style={{ color: 'var(--text-light)', marginTop: '0.5rem' }}>
+              No education details available.
+            </p>
+          )}
         </div>
 
         {certifications.length > 0 && (
