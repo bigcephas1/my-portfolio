@@ -7,6 +7,20 @@ const HomePage = ({ data }) => {
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Get homepage data
+  const homepage = data.homepage || {};
+  const heroTitle = homepage.heroTitle || 'Peter Uchenna Ukpabi';
+  const heroSubtitle = homepage.heroSubtitle || 'DevSecOps · Cloud · Platform Engineer';
+  const intro = homepage.intro || data.intro || '';
+  const summary = homepage.summary || data.summary || '';
+  const competencies = homepage.competencies || [
+    'Cloud Infrastructure Engineering', 'AWS Architecture', 'Platform Engineering',
+    'Kubernetes Administration', 'Docker', 'CI/CD Engineering', 'GitOps', 'Cloud Security',
+    'Linux Administration', 'Monitoring & Observability', 'High Availability',
+    'Disaster Recovery', 'Incident Response', 'Performance Optimization',
+    'Cost Optimization', 'Technical Documentation'
+  ];
+
   const getImages = () => {
     if (data.galleryImages && data.galleryImages.length > 0) {
       return data.galleryImages.map(img => img.url);
@@ -43,301 +57,324 @@ const HomePage = ({ data }) => {
     setCurrentImageIndex((prev) => (prev - 1 + profileImages.length) % profileImages.length);
   };
 
-  if (!hasImages) {
-    return (
-      <>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
-          <div className="card">
-            <h3><i className="fas fa-bullseye"></i> Intro</h3>
-            <p>{data.intro}</p>
-          </div>
-          <div className="card">
-            <h3><i className="fas fa-user-tie"></i> Professional Summary</h3>
-            <p>{data.summary}</p>
-          </div>
-        </div>
-        
-        <div className="card" style={{ marginBottom: '2rem' }}>
-          <h3><i className="fas fa-rocket"></i> Core Competencies</h3>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginTop: '0.5rem' }}>
-            {[
-              'Cloud Infrastructure Engineering', 'AWS Architecture', 'Platform Engineering',
-              'Kubernetes Administration', 'Docker', 'CI/CD Engineering', 'GitOps', 'Cloud Security',
-              'Linux Administration', 'Monitoring & Observability', 'High Availability',
-              'Disaster Recovery', 'Incident Response', 'Performance Optimization',
-              'Cost Optimization', 'Technical Documentation'
-            ].map(skill => (
-              <span key={skill} className="badge badge-secondary">{skill}</span>
-            ))}
-          </div>
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
-      <div className="home-hero" style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 1.5fr', 
-        gap: '2rem',
-        marginBottom: '2rem'
-      }}>
-        <motion.div 
-          className="carousel-container card"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1rem',
-            position: 'relative',
-            overflow: 'hidden',
-            minHeight: '400px',
-            background: 'var(--bg-card)',
-            borderRadius: '28px',
-            border: '1px solid var(--border-color)'
-          }}
-        >
-          <div style={{ 
-            position: 'relative',
-            width: '100%',
-            height: '100%',
-            minHeight: '350px',
-            borderRadius: '20px',
-            overflow: 'hidden',
-            background: 'var(--bg-color)'
-          }}>
-            <AnimatePresence mode='wait'>
-              <motion.div
-                key={currentImageIndex}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.6 }}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  minHeight: '350px',
-                  position: 'relative'
-                }}
-                onClick={() => setShowAvatarModal(true)}
-              >
-                <img 
-                  src={profileImages[currentImageIndex]} 
-                  alt={`Profile ${currentImageIndex + 1}`}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    minHeight: '350px',
-                    objectFit: 'cover',
-                    borderRadius: '20px',
-                    cursor: 'pointer'
-                  }}
-                  onError={(e) => {
-                    console.error('❌ Image failed to load:', profileImages[currentImageIndex]);
-                    e.target.style.display = 'none';
-                  }}
-                />
-              </motion.div>
-            </AnimatePresence>
-
-            {profileImages.length > 1 && (
-              <>
-                <button
-                  className="nav-arrows"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    prevImage();
-                  }}
-                  style={{
-                    position: 'absolute',
-                    left: '10px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'rgba(0,0,0,0.5)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '40px',
-                    height: '40px',
-                    cursor: 'pointer',
-                    fontSize: '1.2rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backdropFilter: 'blur(4px)',
-                    transition: 'all 0.3s ease',
-                    zIndex: 10
-                  }}
-                  onMouseEnter={(e) => e.target.style.background = 'rgba(37,99,235,0.8)'}
-                  onMouseLeave={(e) => e.target.style.background = 'rgba(0,0,0,0.5)'}
-                >
-                  <i className="fas fa-chevron-left"></i>
-                </button>
-                <button
-                  className="nav-arrows"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    nextImage();
-                  }}
-                  style={{
-                    position: 'absolute',
-                    right: '10px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'rgba(0,0,0,0.5)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '40px',
-                    height: '40px',
-                    cursor: 'pointer',
-                    fontSize: '1.2rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backdropFilter: 'blur(4px)',
-                    transition: 'all 0.3s ease',
-                    zIndex: 10
-                  }}
-                  onMouseEnter={(e) => e.target.style.background = 'rgba(37,99,235,0.8)'}
-                  onMouseLeave={(e) => e.target.style.background = 'rgba(0,0,0,0.5)'}
-                >
-                  <i className="fas fa-chevron-right"></i>
-                </button>
-              </>
-            )}
-
-            {profileImages.length > 1 && (
-              <div style={{
-                position: 'absolute',
-                bottom: '1rem',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                display: 'flex',
-                gap: '0.5rem',
-                background: 'rgba(0,0,0,0.5)',
-                padding: '0.3rem 0.8rem',
-                borderRadius: '20px',
-                backdropFilter: 'blur(10px)',
-                zIndex: 10
-              }}>
-                {profileImages.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goToImage(index);
-                    }}
-                    style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      border: 'none',
-                      background: currentImageIndex === index ? '#2563eb' : 'rgba(255,255,255,0.5)',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      padding: '0'
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {profileImages.length > 1 && (
-            <p style={{
-              marginTop: '0.8rem',
-              fontSize: '0.85rem',
-              color: 'var(--text-light)',
-              opacity: 0.7
-            }}>
-              {currentImageIndex + 1} / {profileImages.length} • <i className="fas fa-expand"></i> Click to view full size
-            </p>
-          )}
-        </motion.div>
-
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '1.5rem'
-        }}>
-          <motion.div 
-            className="card"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            style={{ flex: 1 }}
-          >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-              <div style={{
-                background: 'var(--primary-bg)',
-                padding: '0.5rem 0.8rem',
-                borderRadius: '12px',
-                color: 'var(--primary-color)',
-                fontSize: '1.2rem',
-                flexShrink: 0
-              }}>
-                <i className="fas fa-bullseye"></i>
-              </div>
-              <div>
-                <h3 style={{ marginBottom: '0.3rem' }}>Intro</h3>
-                <p style={{ color: 'var(--text-light)' }}>{data.intro}</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            className="card"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            style={{ flex: 1 }}
-          >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-              <div style={{
-                background: 'var(--primary-bg)',
-                padding: '0.5rem 0.8rem',
-                borderRadius: '12px',
-                color: 'var(--primary-color)',
-                fontSize: '1.2rem',
-                flexShrink: 0
-              }}>
-                <i className="fas fa-user-tie"></i>
-              </div>
-              <div>
-                <h3 style={{ marginBottom: '0.3rem' }}>Professional Summary</h3>
-                <p style={{ color: 'var(--text-light)' }}>{data.summary}</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      <motion.div 
-        className="card"
+      {/* Hero Section - Name and Title */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        style={{ marginBottom: '2rem' }}
+        transition={{ duration: 0.5 }}
+        style={{
+          marginBottom: '2rem',
+          padding: '2rem 1rem',
+          textAlign: 'center',
+          background: 'var(--bg-card)',
+          borderRadius: '28px',
+          border: '1px solid var(--border-color)',
+          boxShadow: 'var(--shadow)'
+        }}
       >
-        <h3><i className="fas fa-rocket"></i> Core Competencies</h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginTop: '0.5rem' }}>
-          {[
-            'Cloud Infrastructure Engineering', 'AWS Architecture', 'Platform Engineering',
-            'Kubernetes Administration', 'Docker', 'CI/CD Engineering', 'GitOps', 'Cloud Security',
-            'Linux Administration', 'Monitoring & Observability', 'High Availability',
-            'Disaster Recovery', 'Incident Response', 'Performance Optimization',
-            'Cost Optimization', 'Technical Documentation'
-          ].map(skill => (
-            <span key={skill} className="badge badge-secondary">{skill}</span>
-          ))}
-        </div>
+        <h1 style={{
+          fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+          fontWeight: 700,
+          marginBottom: '0.5rem',
+          background: 'linear-gradient(145deg, #1e293b, #2563eb)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
+        }}>
+          {heroTitle}
+        </h1>
+        <p style={{
+          fontSize: 'clamp(1rem, 2vw, 1.5rem)',
+          color: 'var(--text-light)',
+          fontWeight: 500
+        }}>
+          {heroSubtitle}
+        </p>
       </motion.div>
+
+      {!hasImages ? (
+        <>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
+            <div className="card">
+              <h3><i className="fas fa-bullseye"></i> Intro</h3>
+              <div dangerouslySetInnerHTML={{ __html: intro }} />
+            </div>
+            <div className="card">
+              <h3><i className="fas fa-user-tie"></i> Professional Summary</h3>
+              <div dangerouslySetInnerHTML={{ __html: summary }} />
+            </div>
+          </div>
+          
+          <div className="card" style={{ marginBottom: '2rem' }}>
+            <h3><i className="fas fa-rocket"></i> Core Competencies</h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginTop: '0.5rem' }}>
+              {competencies.map(skill => (
+                <span key={skill} className="badge badge-secondary">{skill}</span>
+              ))}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="home-hero" style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1.5fr', 
+            gap: '2rem',
+            marginBottom: '2rem'
+          }}>
+            <motion.div 
+              className="carousel-container card"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '1rem',
+                position: 'relative',
+                overflow: 'hidden',
+                minHeight: '400px',
+                background: 'var(--bg-card)',
+                borderRadius: '28px',
+                border: '1px solid var(--border-color)'
+              }}
+            >
+              <div style={{ 
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+                minHeight: '350px',
+                borderRadius: '20px',
+                overflow: 'hidden',
+                background: 'var(--bg-color)'
+              }}>
+                <AnimatePresence mode='wait'>
+                  <motion.div
+                    key={currentImageIndex}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.6 }}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      minHeight: '350px',
+                      position: 'relative'
+                    }}
+                    onClick={() => setShowAvatarModal(true)}
+                  >
+                    <img 
+                      src={profileImages[currentImageIndex]} 
+                      alt={`Profile ${currentImageIndex + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        minHeight: '350px',
+                        objectFit: 'cover',
+                        borderRadius: '20px',
+                        cursor: 'pointer'
+                      }}
+                      onError={(e) => {
+                        console.error('❌ Image failed to load:', profileImages[currentImageIndex]);
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </motion.div>
+                </AnimatePresence>
+
+                {profileImages.length > 1 && (
+                  <>
+                    <button
+                      className="nav-arrows"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        prevImage();
+                      }}
+                      style={{
+                        position: 'absolute',
+                        left: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'rgba(0,0,0,0.5)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '40px',
+                        height: '40px',
+                        cursor: 'pointer',
+                        fontSize: '1.2rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backdropFilter: 'blur(4px)',
+                        transition: 'all 0.3s ease',
+                        zIndex: 10
+                      }}
+                      onMouseEnter={(e) => e.target.style.background = 'rgba(37,99,235,0.8)'}
+                      onMouseLeave={(e) => e.target.style.background = 'rgba(0,0,0,0.5)'}
+                    >
+                      <i className="fas fa-chevron-left"></i>
+                    </button>
+                    <button
+                      className="nav-arrows"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        nextImage();
+                      }}
+                      style={{
+                        position: 'absolute',
+                        right: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'rgba(0,0,0,0.5)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '40px',
+                        height: '40px',
+                        cursor: 'pointer',
+                        fontSize: '1.2rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backdropFilter: 'blur(4px)',
+                        transition: 'all 0.3s ease',
+                        zIndex: 10
+                      }}
+                      onMouseEnter={(e) => e.target.style.background = 'rgba(37,99,235,0.8)'}
+                      onMouseLeave={(e) => e.target.style.background = 'rgba(0,0,0,0.5)'}
+                    >
+                      <i className="fas fa-chevron-right"></i>
+                    </button>
+                  </>
+                )}
+
+                {profileImages.length > 1 && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '1rem',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    gap: '0.5rem',
+                    background: 'rgba(0,0,0,0.5)',
+                    padding: '0.3rem 0.8rem',
+                    borderRadius: '20px',
+                    backdropFilter: 'blur(10px)',
+                    zIndex: 10
+                  }}>
+                    {profileImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          goToImage(index);
+                        }}
+                        style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          border: 'none',
+                          background: currentImageIndex === index ? '#2563eb' : 'rgba(255,255,255,0.5)',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease',
+                          padding: '0'
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {profileImages.length > 1 && (
+                <p style={{
+                  marginTop: '0.8rem',
+                  fontSize: '0.85rem',
+                  color: 'var(--text-light)',
+                  opacity: 0.7
+                }}>
+                  {currentImageIndex + 1} / {profileImages.length} • <i className="fas fa-expand"></i> Click to view full size
+                </p>
+              )}
+            </motion.div>
+
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '1.5rem'
+            }}>
+              <motion.div 
+                className="card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.5 }}
+                style={{ flex: 1 }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                  <div style={{
+                    background: 'var(--primary-bg)',
+                    padding: '0.5rem 0.8rem',
+                    borderRadius: '12px',
+                    color: 'var(--primary-color)',
+                    fontSize: '1.2rem',
+                    flexShrink: 0
+                  }}>
+                    <i className="fas fa-bullseye"></i>
+                  </div>
+                  <div>
+                    <h3 style={{ marginBottom: '0.3rem' }}>Intro</h3>
+                    <div dangerouslySetInnerHTML={{ __html: intro }} />
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div 
+                className="card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                style={{ flex: 1 }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                  <div style={{
+                    background: 'var(--primary-bg)',
+                    padding: '0.5rem 0.8rem',
+                    borderRadius: '12px',
+                    color: 'var(--primary-color)',
+                    fontSize: '1.2rem',
+                    flexShrink: 0
+                  }}>
+                    <i className="fas fa-user-tie"></i>
+                  </div>
+                  <div>
+                    <h3 style={{ marginBottom: '0.3rem' }}>Professional Summary</h3>
+                    <div dangerouslySetInnerHTML={{ __html: summary }} />
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+
+          <motion.div 
+            className="card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            style={{ marginBottom: '2rem' }}
+          >
+            <h3><i className="fas fa-rocket"></i> Core Competencies</h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginTop: '0.5rem' }}>
+              {competencies.map(skill => (
+                <span key={skill} className="badge badge-secondary">{skill}</span>
+              ))}
+            </div>
+          </motion.div>
+        </>
+      )}
 
       {showAvatarModal && (
         <motion.div 

@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { ProtectedRoute } from '../../components/ProtectedRoute.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
+import RichTextEditor from '../../components/RichTextEditor.jsx';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -463,17 +464,117 @@ function DashboardContent() {
             <h3>✏️ Edit Content</h3>
             <div style={{ marginTop: '1.5rem' }}>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-                {['homepage','avatar', 'about', 'experience', 'projects', 'skills', 'services', 'blog', 'certifications', 'education', 'contactFields', 'hire'].map(section => (
+                {['homepage', 'avatar', 'about', 'experience', 'projects', 'skills', 'services', 'blog', 'certifications', 'education', 'contactFields', 'hire'].map(section => (
                   <button
                     key={section}
                     className={editingItem === section ? 'btn-primary' : 'btn-outline'}
                     onClick={() => setEditingItem(editingItem === section ? null : section)}
                     style={{ padding: '0.3rem 1rem', fontSize: '0.85rem' }}
                   >
-                    {section === 'contactFields' ? 'Contact Fields' : section.charAt(0).toUpperCase() + section.slice(1)}
+                    {section === 'contactFields' ? 'Contact Fields' : section === 'homepage' ? 'Homepage' : section.charAt(0).toUpperCase() + section.slice(1)}
                   </button>
                 ))}
               </div>
+
+              {/* ========== HOMEPAGE SECTION ========== */}
+              {editingItem === 'homepage' && (
+                <div className="card">
+                  <h4>Homepage Content</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '1rem' }}>
+                    Edit your homepage content. Use the rich text editor to format your text.
+                  </p>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Hero Title</label>
+                    <input
+                      className="form-input"
+                      value={formData.homepage?.heroTitle || ''}
+                      onChange={(e) => {
+                        const updatedFormData = {
+                          ...formData,
+                          homepage: { ...formData.homepage, heroTitle: e.target.value }
+                        };
+                        setFormData(updatedFormData);
+                      }}
+                      placeholder="Your name"
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Hero Subtitle</label>
+                    <input
+                      className="form-input"
+                      value={formData.homepage?.heroSubtitle || ''}
+                      onChange={(e) => {
+                        const updatedFormData = {
+                          ...formData,
+                          homepage: { ...formData.homepage, heroSubtitle: e.target.value }
+                        };
+                        setFormData(updatedFormData);
+                      }}
+                      placeholder="e.g., DevSecOps · Cloud · Platform Engineer"
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Intro</label>
+                    <RichTextEditor
+                      value={formData.homepage?.intro || ''}
+                      onChange={(html) => {
+                        const updatedFormData = {
+                          ...formData,
+                          homepage: { ...formData.homepage, intro: html }
+                        };
+                        setFormData(updatedFormData);
+                      }}
+                      placeholder="Write your introduction..."
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Professional Summary</label>
+                    <RichTextEditor
+                      value={formData.homepage?.summary || ''}
+                      onChange={(html) => {
+                        const updatedFormData = {
+                          ...formData,
+                          homepage: { ...formData.homepage, summary: html }
+                        };
+                        setFormData(updatedFormData);
+                      }}
+                      placeholder="Write your professional summary..."
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Core Competencies</label>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '0.3rem' }}>
+                      Enter each competency on a new line
+                    </p>
+                    <textarea
+                      className="form-input"
+                      rows="5"
+                      value={Array.isArray(formData.homepage?.competencies) ? formData.homepage.competencies.join('\n') : ''}
+                      onChange={(e) => {
+                        const competencies = e.target.value
+                          .split('\n')
+                          .map(s => s.trim())
+                          .filter(Boolean);
+                        const updatedFormData = {
+                          ...formData,
+                          homepage: { ...formData.homepage, competencies }
+                        };
+                        setFormData(updatedFormData);
+                      }}
+                      placeholder="Cloud Infrastructure Engineering&#10;AWS Architecture&#10;Platform Engineering"
+                    />
+                  </div>
+
+                  <button className="btn-primary" onClick={() => handleUpdate()}>
+                    <i className="fas fa-save"></i> Save Homepage
+                  </button>
+                </div>
+              )}
 
               {/* Avatar Section */}
               {editingItem === 'avatar' && (
@@ -680,33 +781,31 @@ function DashboardContent() {
                   
                   <div style={{ marginBottom: '1rem' }}>
                     <label className="form-label">Bio</label>
-                    <textarea
-                      className="form-input"
-                      rows="3"
+                    <RichTextEditor
                       value={formData.about?.bio || ''}
-                      onChange={(e) => {
+                      onChange={(html) => {
                         const updatedFormData = {
                           ...formData,
-                          about: { ...formData.about, bio: e.target.value }
+                          about: { ...formData.about, bio: html }
                         };
                         setFormData(updatedFormData);
                       }}
+                      placeholder="Write your bio..."
                     />
                   </div>
 
                   <div style={{ marginBottom: '1rem' }}>
                     <label className="form-label">Experience Summary</label>
-                    <textarea
-                      className="form-input"
-                      rows="2"
+                    <RichTextEditor
                       value={formData.about?.experience || ''}
-                      onChange={(e) => {
+                      onChange={(html) => {
                         const updatedFormData = {
                           ...formData,
-                          about: { ...formData.about, experience: e.target.value }
+                          about: { ...formData.about, experience: html }
                         };
                         setFormData(updatedFormData);
                       }}
+                      placeholder="Write your experience summary..."
                     />
                   </div>
 
@@ -819,7 +918,7 @@ function DashboardContent() {
                 </div>
               )}
 
-              {/* Experience Section */}
+              {/* Experience Section with Rich Text */}
               {editingItem === 'experience' && (
                 <div className="card">
                   <h4>Experience</h4>
@@ -867,22 +966,22 @@ function DashboardContent() {
                           setFormData(updatedFormData);
                         }}
                       />
-                      <textarea
-                        className="form-input"
-                        style={{ marginTop: '0.5rem' }}
-                        rows="3"
-                        placeholder="Description"
-                        value={exp.description}
-                        onChange={(e) => {
-                          const updatedFormData = {
-                            ...formData,
-                            experience: formData.experience.map(item => 
-                              item.id === exp.id ? { ...item, description: e.target.value } : item
-                            )
-                          };
-                          setFormData(updatedFormData);
-                        }}
-                      />
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <label className="form-label">Description</label>
+                        <RichTextEditor
+                          value={exp.description || ''}
+                          onChange={(html) => {
+                            const updatedFormData = {
+                              ...formData,
+                              experience: formData.experience.map(item => 
+                                item.id === exp.id ? { ...item, description: html } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
+                          placeholder="Describe your experience..."
+                        />
+                      </div>
                     </div>
                   ))}
                   <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => handleUpdate()}>
@@ -891,7 +990,7 @@ function DashboardContent() {
                 </div>
               )}
 
-              {/* Projects Section */}
+              {/* Projects Section with Rich Text */}
               {editingItem === 'projects' && (
                 <div className="card">
                   <h4>Projects</h4>
@@ -931,24 +1030,23 @@ function DashboardContent() {
                           setFormData(updatedFormData);
                         }}
                       />
-                      <textarea
-                        className="form-input"
-                        style={{ marginTop: '0.5rem' }}
-                        rows="2"
-                        placeholder="Description"
-                        value={project.description}
-                        onChange={(e) => {
-                          const updatedFormData = {
-                            ...formData,
-                            projects: formData.projects.map(item => 
-                              item.id === project.id ? { ...item, description: e.target.value } : item
-                            )
-                          };
-                          setFormData(updatedFormData);
-                        }}
-                      />
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <label className="form-label">Description</label>
+                        <RichTextEditor
+                          value={project.description || ''}
+                          onChange={(html) => {
+                            const updatedFormData = {
+                              ...formData,
+                              projects: formData.projects.map(item => 
+                                item.id === project.id ? { ...item, description: html } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
+                          placeholder="Describe your project..."
+                        />
+                      </div>
                       
-                      {/* Tech Stack with chips */}
                       <div style={{ marginTop: '0.5rem' }}>
                         <label className="form-label" style={{ fontSize: '0.85rem' }}>Tech Stack</label>
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginBottom: '0.3rem' }}>
@@ -1234,21 +1332,22 @@ function DashboardContent() {
                           setFormData(updatedFormData);
                         }}
                       />
-                      <textarea
-                        className="form-input"
-                        style={{ marginTop: '0.5rem' }}
-                        rows="2"
-                        value={service.description}
-                        onChange={(e) => {
-                          const updatedFormData = {
-                            ...formData,
-                            services: formData.services.map(item => 
-                              item.id === service.id ? { ...item, description: e.target.value } : item
-                            )
-                          };
-                          setFormData(updatedFormData);
-                        }}
-                      />
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <label className="form-label">Description</label>
+                        <RichTextEditor
+                          value={service.description || ''}
+                          onChange={(html) => {
+                            const updatedFormData = {
+                              ...formData,
+                              services: formData.services.map(item => 
+                                item.id === service.id ? { ...item, description: html } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
+                          placeholder="Describe your service..."
+                        />
+                      </div>
                       <input
                         className="form-input"
                         style={{ marginTop: '0.5rem' }}
@@ -1272,7 +1371,7 @@ function DashboardContent() {
                 </div>
               )}
 
-              {/* Blog Section */}
+              {/* Blog Section with Rich Text */}
               {editingItem === 'blog' && (
                 <div className="card">
                   <h4>Blog Posts</h4>
@@ -1330,22 +1429,22 @@ function DashboardContent() {
                           setFormData(updatedFormData);
                         }}
                       />
-                      <textarea
-                        className="form-input"
-                        style={{ marginTop: '0.5rem' }}
-                        rows="2"
-                        placeholder="Excerpt"
-                        value={post.excerpt}
-                        onChange={(e) => {
-                          const updatedFormData = {
-                            ...formData,
-                            blog: formData.blog.map(item => 
-                              item.id === post.id ? { ...item, excerpt: e.target.value } : item
-                            )
-                          };
-                          setFormData(updatedFormData);
-                        }}
-                      />
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <label className="form-label">Excerpt</label>
+                        <RichTextEditor
+                          value={post.excerpt || ''}
+                          onChange={(html) => {
+                            const updatedFormData = {
+                              ...formData,
+                              blog: formData.blog.map(item => 
+                                item.id === post.id ? { ...item, excerpt: html } : item
+                              )
+                            };
+                            setFormData(updatedFormData);
+                          }}
+                          placeholder="Write a brief excerpt..."
+                        />
+                      </div>
                       <input
                         className="form-input"
                         style={{ marginTop: '0.5rem' }}
@@ -1825,19 +1924,18 @@ function DashboardContent() {
                         
                         <div style={{ marginTop: '0.5rem' }}>
                           <label className="form-label" style={{ fontSize: '0.8rem' }}>Description</label>
-                          <textarea
-                            className="form-input"
-                            rows="2"
+                          <RichTextEditor
                             value={edu.description || ''}
-                            onChange={(e) => {
+                            onChange={(html) => {
                               const updatedFormData = {
                                 ...formData,
                                 education: formData.education.map(item => 
-                                  item.id === edu.id ? { ...item, description: e.target.value } : item
+                                  item.id === edu.id ? { ...item, description: html } : item
                                 )
                               };
                               setFormData(updatedFormData);
                             }}
+                            placeholder="Describe your education..."
                           />
                         </div>
                       </div>
