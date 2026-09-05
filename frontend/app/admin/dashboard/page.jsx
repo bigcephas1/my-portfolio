@@ -463,7 +463,7 @@ function DashboardContent() {
             <h3>✏️ Edit Content</h3>
             <div style={{ marginTop: '1.5rem' }}>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-                {['avatar', 'about', 'experience', 'projects', 'skills', 'services', 'blog', 'certifications', 'education', 'contactFields', 'hire'].map(section => (
+                {['homepage','avatar', 'about', 'experience', 'projects', 'skills', 'services', 'blog', 'certifications', 'education', 'contactFields', 'hire'].map(section => (
                   <button
                     key={section}
                     className={editingItem === section ? 'btn-primary' : 'btn-outline'}

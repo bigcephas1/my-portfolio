@@ -1,8 +1,6 @@
 export const defaultPortfolioData = {
   avatar: '',
   galleryImages: [],
-  intro: 'DevSecOps & Cloud Engineer with 3+ years of experience designing, automating, and managing secure, scalable cloud infrastructure on AWS. Experienced in Infrastructure as Code (Terraform), Kubernetes orchestration, CI/CD automation, Linux administration, cloud networking, monitoring, observability, and production operations.',
-  summary: 'Proven track record of reducing deployment time, optimizing infrastructure costs, improving platform reliability, and automating software delivery pipelines through modern DevOps practices.',
   about: {
     bio: 'Passionate DevSecOps Engineer with a strong background in cloud infrastructure, automation, and security. I help organizations build and maintain highly available, scalable, and secure cloud-native applications.',
     experience: '3+ years of experience in DevOps, Cloud Engineering, and Infrastructure Automation.',
@@ -10,6 +8,21 @@ export const defaultPortfolioData = {
     interests: ['Cloud Computing', 'Kubernetes', 'DevOps Culture', 'Open Source', 'Tech Writing'],
     profileImage: ''
   },
+  homepage: {
+    heroTitle: 'Peter Uchenna Ukpabi',
+    heroSubtitle: 'DevSecOps · Cloud · Platform Engineer',
+    intro: '<p>DevSecOps &amp; Cloud Engineer with 3+ years of experience designing, automating, and managing secure, scalable cloud infrastructure on AWS. Experienced in Infrastructure as Code (Terraform), Kubernetes orchestration, CI/CD automation, Linux administration, cloud networking, monitoring, observability, and production operations.</p>',
+    summary: '<p>Proven track record of reducing deployment time, optimizing infrastructure costs, improving platform reliability, and automating software delivery pipelines through modern DevOps practices.</p>',
+    competencies: [
+      'Cloud Infrastructure Engineering', 'AWS Architecture', 'Platform Engineering',
+      'Kubernetes Administration', 'Docker', 'CI/CD Engineering', 'GitOps', 'Cloud Security',
+      'Linux Administration', 'Monitoring & Observability', 'High Availability',
+      'Disaster Recovery', 'Incident Response', 'Performance Optimization',
+      'Cost Optimization', 'Technical Documentation'
+    ]
+  },
+  intro: 'DevSecOps & Cloud Engineer with 3+ years of experience designing, automating, and managing secure, scalable cloud infrastructure on AWS.',
+  summary: 'Proven track record of reducing deployment time, optimizing infrastructure costs, improving platform reliability, and automating software delivery pipelines through modern DevOps practices.',
   experience: [
     {
       id: 1,
@@ -114,16 +127,18 @@ export const defaultPortfolioData = {
       credentialId: 'TF-12345'
     }
   ],
-  education: {
-    id: 1,
-    degree: 'Bachelor of Science in Computer Science',
-    institution: 'University of the People',
-    year: '2024',
-    description: 'Specialized in Cloud Computing and Distributed Systems',
-    certificateImage: '',
-    grade: 'First Class Honors',
-    location: 'Online'
-  },
+  education: [
+    {
+      id: 1,
+      degree: 'Bachelor of Science in Computer Science',
+      institution: 'University of the People',
+      year: '2024',
+      description: 'Specialized in Cloud Computing and Distributed Systems',
+      certificateImage: '',
+      grade: 'First Class Honors',
+      location: 'Online'
+    }
+  ],
   hire: {
     salaryExpectation: '$60,000 - $100,000 USD per year',
     noticePeriod: '1 month',

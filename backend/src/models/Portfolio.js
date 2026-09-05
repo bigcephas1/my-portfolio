@@ -74,9 +74,8 @@ const galleryImageSchema = new mongoose.Schema({
   order: { type: Number, default: 0 }
 });
 
-// ✅ FIXED: Make education fields optional (not required)
 const educationSchema = new mongoose.Schema({
-  id: { type: Number }, // Not required
+  id: { type: Number },
   degree: { type: String },
   institution: { type: String },
   year: { type: String },
@@ -101,10 +100,21 @@ const aboutSchema = new mongoose.Schema({
   profileImage: { type: String, default: '' }
 });
 
+// ✅ Homepage schema with rich text
+const homepageSchema = new mongoose.Schema({
+  heroTitle: { type: String, default: 'Peter Uchenna Ukpabi' },
+  heroSubtitle: { type: String, default: 'DevSecOps · Cloud · Platform Engineer' },
+  intro: { type: String, default: '' },
+  summary: { type: String, default: '' },
+  competencies: { type: [String], default: [] }
+});
+
 const portfolioSchema = new mongoose.Schema({
   avatar: { type: String, default: '' },
   galleryImages: { type: [galleryImageSchema], default: [] },
   about: { type: aboutSchema, default: () => ({}) },
+  homepage: { type: homepageSchema, default: () => ({}) },
+  // These are kept for backward compatibility
   intro: { type: String, default: '' },
   summary: { type: String, default: '' },
   experience: { type: [experienceSchema], default: [] },

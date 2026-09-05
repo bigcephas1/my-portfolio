@@ -11,6 +11,10 @@
     "build:standalone": "next build && cp -r .next/standalone . && cp -r .next/static .next/standalone/.next/static"
   },
   "dependencies": {
+    "@tiptap/extension-link": "^3.31.3",
+    "@tiptap/extension-placeholder": "^3.31.3",
+    "@tiptap/react": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
     "axios": "^1.6.0",
     "framer-motion": "^10.16.4",
     "next": "14.0.0",
