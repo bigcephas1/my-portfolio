@@ -36,25 +36,46 @@ const startServer = async () => {
       },
     }));
 
-    // ✅ CORS for Render
+    // ✅ Allowed origins
+    // You can add more via the FRONTEND_URLS env variable (comma-separated)
+    const envOrigins = process.env.FRONTEND_URLS
+      ? process.env.FRONTEND_URLS.split(',').map((o) => o.trim())
+      : [];
+
     const allowedOrigins = [
       process.env.FRONTEND_URL || 'http://localhost:3000',
-      'https://your-frontend-url.onrender.com',
-      'http://localhost:3000'
-    ];
+      'http://localhost:3000',
+      'http://localhost:5000',
+      'https://my-portfolio-green-theta-x71ibx5rzn.vercel.app',
+      ...envOrigins,
+    ].filter(Boolean);
 
     app.use(cors({
       origin: (origin, callback) => {
+        // Allow requests with no origin (Postman, curl, mobile apps, server-to-server)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin) || origin?.includes('.onrender.com')) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
+
+        // Exact match
+        if (allowedOrigins.includes(origin)) {
+          return callback(null, true);
         }
+
+        // Allow Render preview URLs (*.onrender.com)
+        if (origin.endsWith('.onrender.com')) {
+          return callback(null, true);
+        }
+
+        // Allow Vercel preview + production URLs (*.vercel.app)
+        if (origin.endsWith('.vercel.app')) {
+          return callback(null, true);
+        }
+
+        console.warn(`🚫 CORS blocked request from origin: ${origin}`);
+        return callback(new Error('Not allowed by CORS'));
       },
       credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     }));
 
     app.use(express.json({ limit: '10mb' }));
@@ -74,11 +95,11 @@ const startServer = async () => {
     app.use('/api/contact', contactRoutes);
 
     app.get('/api/health', (req, res) => {
-      res.json({ 
-        status: 'healthy', 
+      res.json({
+        status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        database: 'connected'
+        database: 'connected',
       });
     });
 
@@ -91,7 +112,7 @@ const startServer = async () => {
       console.log(`🗄️  Database: MongoDB`);
       console.log(`🔐 JWT Authentication: Enabled`);
       console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+      console.log(`🌐 Allowed origins: ${allowedOrigins.join(', ')}`);
       console.log(`📁 Uploads: ${path.join(__dirname, 'src/uploads')}`);
     });
 
